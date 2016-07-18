@@ -3,7 +3,7 @@
 	image_height="400"
 	background_color="0 0 0"
 	exposure="1"
-	recursive_depth_limit="15">
+	recursive_depth_limit="6">
 
 	<camera 
    		position="0 2 10"
