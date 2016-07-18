@@ -1,0 +1,28 @@
+<scene 
+  image_width="800"
+	image_height="600"
+	background_color="0 0 0.5"
+	supersample="4"
+	exposure="1"
+	recursive_depth_limit="4">
+
+	<camera 
+    position="0 3 10"
+		direction="0 -2 -10"
+		up="0 1 0" 
+    fov="45"/>
+
+	<materials>
+		<gold emission="0 0 0"
+			diffuse="0.72 0.45 0.2"
+			specular="1 1 1"
+			reflectance="0.3 0.3 0.3"
+			transparency="0 0 0"
+			refraction_index="1" />
+	</materials>
+
+	<object type="sphere"
+		center="0 0 0"
+		radius="1"
+		material="gold" />
+</scene>

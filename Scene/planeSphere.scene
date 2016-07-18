@@ -1,0 +1,11 @@
+<scene
+	image_width=""
+	image_height="">
+	<camera position=""
+			direction=""
+			up="" />
+	<materials>
+		<material />
+	</materials>
+	
+</scene>
