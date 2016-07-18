@@ -22,6 +22,8 @@ namespace Aura
 
         private Thread RenderThread { get; set; }
 
+        public static Stopwatch stopwatch { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -35,7 +37,7 @@ namespace Aura
         private void Initialize()
         {
             SceneDescription = new Scene();
-            SceneDescription.LoadScene("cornell.scene");
+            SceneDescription.LoadScene("../../../Scene/cornell.scene");
             PixelSampler = new Sampler(SceneDescription);
             MainCamera = new Camera(SceneDescription);
             Tracer = new Pathtracer(SceneDescription);
@@ -47,12 +49,14 @@ namespace Aura
 
         private void Render()
         {
+            int frame = 0;
+            stopwatch = Stopwatch.StartNew();
+            Sample sample;
+            Ray ray;
+            Vec3 color;
             while (true)
             {
-                Debug.Print("render start");
-                Sample sample;
-                Ray ray;
-                Vec3 color;
+                Debug.WriteLine($"Rendering frame {frame++}");
                 while ((sample = PixelSampler.GetSample()) != null)
                 {
                     ray = MainCamera.GetRay(sample);
@@ -60,13 +64,18 @@ namespace Aura
                     ImageData.Commit(sample, color);
                 }
                 ImageData.Refresh();
-                Debug.Print($"render end");
             }
+        }
+
+        private void Render_MT(int numThread)
+        {
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             RenderThread.Abort();
+            stopwatch.Stop();
+            ImageData.Save("image.bmp", "log.txt");
         }
     }
 }

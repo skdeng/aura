@@ -1,11 +1,8 @@
 ﻿using Aura.Shape;
-using Aura.Values;
 using Aura.VecMath;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace Aura
@@ -18,8 +15,6 @@ namespace Aura
 
         public Vec3 BackgroundColor { get; private set; }
         
-        public int Supersample { get; private set; }
-
         public double Exposure { get; private set; }
 
         public int RecursiveDepthLimit { get; set; }
@@ -36,6 +31,8 @@ namespace Aura
 
         public Dictionary<string, Material> MaterialBank { get; set; }
         
+        public List<Primitive> EmissivePrimitives { get; set; }
+
         public void LoadScene(string sceneFile)
         {
             var sceneRoot = XElement.Load(sceneFile);
@@ -43,7 +40,6 @@ namespace Aura
             ImageWidth = int.Parse(sceneRoot.Attribute("image_width").Value);
             ImageHeight = int.Parse(sceneRoot.Attribute("image_height").Value);
             BackgroundColor = new Vec3(sceneRoot.Attribute("background_color").Value);
-            Supersample = int.Parse(sceneRoot.Attribute("supersample").Value);
             Exposure = double.Parse(sceneRoot.Attribute("exposure").Value);
             RecursiveDepthLimit = int.Parse(sceneRoot.Attribute("recursive_depth_limit").Value);
 
@@ -62,10 +58,9 @@ namespace Aura
                                         {
                                             Emission = new Vec3(node.Attribute("emission").Value),
                                             Diffuse = new Vec3(node.Attribute("diffuse").Value),
-                                            Specular = new Vec3(node.Attribute("specular").Value),
-                                            Reflectance = new Vec3(node.Attribute("reflectance").Value),
                                             Transparency = new Vec3(node.Attribute("transparency").Value),
-                                            RefractionIndex = double.Parse(node.Attribute("refraction_index").Value)
+                                            RefractionIndex = double.Parse(node.Attribute("refraction_index").Value),
+                                            Type = (Material.MaterialType) Enum.Parse(typeof(Material.MaterialType), node.Attribute("type").Value, ignoreCase: true)
                                         }
                                     }).ToDictionary(x => x.name, x => x.material);
 
@@ -79,14 +74,16 @@ namespace Aura
                         {
                             Center = new Vec3(obj.Attribute("center").Value),
                             Radius = double.Parse(obj.Attribute("radius").Value),
-                            SurfaceMaterial = MaterialBank[obj.Attribute("material").Value]
+                            SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
+                            Name = obj.Attribute("name")?.Value
                         } as Primitive;
                     case "aabb":
                         return new AABB()
                         {
                             MinimumPoint = new Vec3(obj.Attribute("min_point").Value),
                             MaximumPoint = new Vec3(obj.Attribute("max_point").Value),
-                            SurfaceMaterial = MaterialBank[obj.Attribute("material").Value]
+                            SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
+                            Name = obj.Attribute("name")?.Value
                         } as Primitive;
                     case "plane":
                         return new Plane()
@@ -94,12 +91,15 @@ namespace Aura
                             Origin = new Vec3(obj.Attribute("origin").Value),
                             Normal = new Vec3(obj.Attribute("normal").Value),
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
-                            SurfaceMaterialSecondary = obj.Attribute("material_secondary") != null ? MaterialBank[obj.Attribute("material_secondary").Value] : null
+                            SurfaceMaterialSecondary = obj.Attribute("material_secondary") != null ? MaterialBank[obj.Attribute("material_secondary").Value] : null,
+                            Name = obj.Attribute("name")?.Value
                         } as Primitive;
                     default:
                         return null;
                 }
             }).ToList();
+
+            EmissivePrimitives = SceneObject.Where(obj => obj.SurfaceMaterial.Emission.Min() > 0).ToList();
         }
 
         public Intersection Intersect(Ray ray)

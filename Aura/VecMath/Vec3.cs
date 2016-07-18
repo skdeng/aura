@@ -231,7 +231,7 @@ namespace Aura.VecMath
             return Math.Min(Math.Min(X, Y), Z);
         }
 
-        static public Vec3 RandomHemisphereVector(Vec3 normal, Random rng)
+        static public Vec3 RandomHemisphereVector_Uniform(Vec3 normal, Random rng)
         {
             var x = rng.NextDouble() * 2 - 1;
             var y = rng.NextDouble() * 2 - 1;

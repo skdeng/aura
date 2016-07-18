@@ -1,9 +1,5 @@
 ﻿using Aura.VecMath;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aura
 {
@@ -12,8 +8,6 @@ namespace Aura
         private int ImageWidth { get; set; }
 
         private int ImageHeight { get; set; }
-
-        private int Supersample { get; set; }
 
         private int CurrentX { get; set; } = 0;
 
@@ -27,7 +21,6 @@ namespace Aura
         {
             ImageWidth = sceneDescription.ImageWidth;
             ImageHeight = sceneDescription.ImageHeight;
-            Supersample = sceneDescription.Supersample;
             RNG = new Random();
         }
 
@@ -46,12 +39,6 @@ namespace Aura
                 OffsetX = RNG.NextDouble() * 2 - 1,
                 OffsetY = RNG.NextDouble() * 2 - 1
             };
-
-            if (++SupersampleCount < Supersample)
-            {
-                return sample;
-            }
-            SupersampleCount = 0;
 
             if (++CurrentX >= ImageWidth)
             {

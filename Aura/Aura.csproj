@@ -73,6 +73,7 @@
     <Compile Include="Ray.cs" />
     <Compile Include="Values\Color.cs" />
     <Compile Include="Values\Constant.cs" />
+    <Compile Include="VecMath\Rand.cs" />
     <Compile Include="VecMath\Vec2.cs" />
     <Compile Include="VecMath\Vec3.cs" />
     <Page Include="MainWindow.xaml">

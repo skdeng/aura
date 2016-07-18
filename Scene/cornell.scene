@@ -1,28 +1,113 @@
 <scene 
-  image_width="800"
-	image_height="600"
-	background_color="0 0 0.5"
-	supersample="4"
+  image_width="600"
+	image_height="400"
+	background_color="0 0 0"
 	exposure="1"
-	recursive_depth_limit="4">
+	recursive_depth_limit="15">
 
 	<camera 
-    position="0 3 10"
-		direction="0 -2 -10"
+   		position="0 2 10"
+		direction="0 -1 -10"
 		up="0 1 0" 
-    fov="45"/>
+    	fov="45"/>
 
 	<materials>
-		<gold emission="0 0 0"
+		<gold 
+			emission="0 0 0"
 			diffuse="0.72 0.45 0.2"
-			specular="1 1 1"
-			reflectance="0.3 0.3 0.3"
 			transparency="0 0 0"
-			refraction_index="1" />
+			refraction_index="1"
+			type="reflective" />
+		<light 
+			emission="1 1 1"
+			diffuse="0 0 0"
+			transparency="0 0 0"
+			refraction_index="1" 
+			type="emissive"/>
+		<white
+			emission="0 0 0"
+			diffuse="1 1 1"
+			transparency="0 0 0"
+			refraction_index="1" 
+			type="diffuse"/>
+		<red
+			emission="0 0 0"
+			diffuse="0.5 0 0"
+			transparency="0 0 0"
+			refraction_index="1" 
+			type="diffuse"/>
+		<green
+			emission="0 0 0"
+			diffuse="0 0.5 0"
+			transparency="0 0 0"
+			refraction_index="1" 
+			type="diffuse"/>
+		<blue
+			emission="0 0 0"
+			diffuse="0 0 0.5"
+			transparency="0 0 0"
+			refraction_index="1" 
+			type="diffuse"/>
+		<glass
+			emission="0 0 0"
+			diffuse="0.2 0.2 0.2"
+			transparency="0 0 0"
+			refraction_index="1.5" 
+			type="refractive"/>
+		<mirror
+			emission="0 0 0"
+			diffuse="0.2 0.2 0.2"
+			transparency="0 0 0"
+			refraction_index="1" 
+			type="reflective"/>
 	</materials>
 
-	<object type="sphere"
-		center="0 0 0"
-		radius="1"
+	<object name="s1"
+		type="sphere"
+		center="-1 0.7 0"
+		radius="0.7"
 		material="gold" />
+
+	<object name="top light"
+		type="sphere"
+		center="0 15 0"
+		radius="10"
+		material="light"/>
+
+	<object name="s1"
+		type="sphere"
+		center="0 1 -4"
+		radius="0.7"
+		material="glass" />	
+
+	<object name="left"
+		type="sphere"
+		center="-10004 0 0"
+		radius="10000"
+		material="red"/>
+	<object name="right"
+		type="sphere"
+		center="10004 0 0"
+		radius="10000"
+		material="green"/>
+	<object name="top"
+		type="sphere"
+		center="0 10006 0"
+		radius="10000"
+		material="white"/>
+	<object name="bottom"
+		type="sphere"
+		center="0 -10000 0"
+		radius="10000"
+		material="white"/>
+	<object name="back"
+		type="sphere"
+		center="0 0 -10008"
+		radius="10000"
+		material="white"/>
+	<object name="front"
+		type="sphere"
+		center="0 0 10012"
+		radius="10000"
+		material="white"/>
 </scene>
