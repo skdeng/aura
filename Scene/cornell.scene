@@ -1,12 +1,12 @@
 <scene 
-  image_width="600"
-	image_height="400"
+  image_width="400"
+	image_height="300"
 	background_color="0 0 0"
 	exposure="1"
-	recursive_depth_limit="6">
+	recursive_depth_limit="16">
 
 	<camera 
-   		position="0 2 10"
+   		position="0 3 10"
 		direction="0 -1 -10"
 		up="0 1 0" 
     	fov="45"/>
@@ -50,36 +50,39 @@
 			type="diffuse"/>
 		<glass
 			emission="0 0 0"
-			diffuse="0.2 0.2 0.2"
+			diffuse="1 1 1"
 			transparency="0 0 0"
 			refraction_index="1.5" 
 			type="refractive"/>
-		<mirror
+		<black
 			emission="0 0 0"
-			diffuse="0.2 0.2 0.2"
+			diffuse="0 0 0"
+			transparency="0 0 0"
+			refraction_index="1" 
+			type="diffuse"/>
+		<silver
+			emission="0 0 0"
+			diffuse="0.8 0.8 0.8"
 			transparency="0 0 0"
 			refraction_index="1" 
 			type="reflective"/>
 	</materials>
 
-	<object name="s1"
+	<object name="gold sphere"
 		type="sphere"
 		center="-1 0.7 0"
 		radius="0.7"
 		material="gold" />
-
+	<object name="glass sphere"
+		type="sphere"
+		center="1.2 1.2 -1"
+		radius="1"
+		material="glass" />	
 	<object name="top light"
 		type="sphere"
-		center="0 15 0"
+		center="0 15.5 -3"
 		radius="10"
 		material="light"/>
-
-	<object name="s1"
-		type="sphere"
-		center="0 1 -4"
-		radius="0.7"
-		material="glass" />	
-
 	<object name="left"
 		type="sphere"
 		center="-10004 0 0"
@@ -109,5 +112,5 @@
 		type="sphere"
 		center="0 0 10012"
 		radius="10000"
-		material="white"/>
+		material="black"/>
 </scene>

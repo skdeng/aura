@@ -33,7 +33,7 @@ namespace Aura
             Initialize();
             MainImage.Source = ImageData.SourceBitmap;
 
-            RenderThread = new Thread(new ThreadStart(Render_MT));
+            RenderThread = new Thread(new ThreadStart(Render));
             RenderThread.Start();
         }
 

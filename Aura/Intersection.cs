@@ -1,10 +1,5 @@
 ﻿using Aura.Shape;
 using Aura.VecMath;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aura
 {
@@ -17,5 +12,6 @@ namespace Aura
         public Material ContactMaterial{ get; set; }
         public Primitive ContactObject { get; set; }
         public int RecursionDepth { get; set; }
+        public bool Inside { get; set; }
     }
 }
