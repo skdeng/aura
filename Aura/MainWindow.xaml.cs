@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Threading;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Aura
 {
@@ -112,6 +113,11 @@ namespace Aura
         {
             public int Start, End;
             public int Index;
+        }
+
+        private void MainCanvas_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Debug.WriteLine(Mouse.GetPosition(MainImage));
         }
     }
 }

@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Closing="Window_Closing"
         Title="MainWindow" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
-    <Canvas x:Name="MainCanvas" Width="Auto" Height="Auto">
+    <Canvas x:Name="MainCanvas" Width="Auto" Height="Auto" MouseDown="MainCanvas_MouseDown">
         <Image x:Name="MainImage" Source="{Binding Path=ImageData.SourceBitmap}"/>
     </Canvas>
 </Window>

@@ -1,8 +1,8 @@
-﻿using Aura.VecMath;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -14,13 +14,11 @@ namespace Aura
 
         public int Height { get; private set; }
 
-        private Vec3 BackgroundColor { get; set; }
+        private Vector3 BackgroundColor { get; set; }
 
-        private Vec3[] BackBuffer { get; set; }
+        private Vector3[] BackBuffer { get; set; }
 
-        private double SampleCount { get; set; } = 1;
-
-        private double Exposure { get; set; }
+        private int SampleCount { get; set; } = 1;
 
         public WriteableBitmap SourceBitmap { get; set; }
 
@@ -29,21 +27,20 @@ namespace Aura
             Width = sceneDescription.ImageWidth;
             Height = sceneDescription.ImageHeight;
             BackgroundColor = sceneDescription.BackgroundColor;
-            Exposure = sceneDescription.Exposure;
 
-            BackBuffer = new Vec3[Width * Height];
+            BackBuffer = new Vector3[Width * Height];
             for (int i = 0; i < Width * Height; i++)
             {
-                BackBuffer[i] = new Vec3(0);
+                BackBuffer[i] = new Vector3(0);
             }
             SourceBitmap = new WriteableBitmap(Width, Height, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null);
         }
 
-        public void Commit(Sample sample, Vec3 color)
+        public void Commit(Sample sample, Vector3 color)
         {
             color = color / SampleCount;
-            var existingColor = BackBuffer[(int)sample.X + (int)sample.Y * Width] * (SampleCount - 1) / SampleCount;
-            BackBuffer[(int)sample.X + (int)sample.Y * Width] = (existingColor + color).Clamp(0,1);
+            var existingColor = BackBuffer[sample.X + sample.Y * Width] * (SampleCount - 1) / SampleCount;
+            BackBuffer[sample.X + sample.Y * Width] = (existingColor + color).Clamp(0, 1);
         }
 
         public void Refresh()
@@ -73,7 +70,7 @@ namespace Aura
             SampleCount += 1;
         }
 
-        public int ColorToRGBA(Vec3 color)
+        public int ColorToRGBA(Vector3 color)
         {
             int R = (int)(color.X * 255) << 16;
             int G = (int)(color.Y * 255) << 8;

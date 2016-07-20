@@ -1,60 +1,92 @@
-﻿using Aura.VecMath;
+﻿using Aura.Values;
+using System;
+using System.Numerics;
 
 namespace Aura.Shape
 {
     class AABB : Primitive
     {
-        public Vec3 MinimumPoint { get; set; }
+        public Vector3 MinimumPoint { get; set; }
 
-        public Vec3 MaximumPoint { get; set; }
+        public Vector3 MaximumPoint { get; set; }
 
         public override Intersection Intersect(Ray ray)
         {
-            Vec3 difference = ray.InverseDirection;
+            var transformedRay = TransformRay(ray);
 
-            Vec3 tMin = (MinimumPoint - ray.Position) * difference;
-            Vec3 tMax = (MaximumPoint - ray.Position) * difference;
+            var difference = transformedRay.InverseDirection;
+
+            var tMin = (MinimumPoint - transformedRay.Position) * difference;
+            var tMax = (MaximumPoint - transformedRay.Position) * difference;
 
             // Temporary variable for swapping
-            double temp;
+            float temp;
             if (difference.X < 0)
             {
                 temp = tMin.X;
                 tMin.X = tMax.X;
-                tMax.X = tMin.X;
+                tMax.X = temp;
             }
             if (difference.Y < 0)
             {
                 temp = tMin.Y;
                 tMin.Y = tMax.Y;
-                tMax.Y = tMin.Y;
+                tMax.Y = temp;
             }
             if (difference.Z < 0)
             {
                 temp = tMin.Z;
                 tMin.Z = tMax.Z;
-                tMax.Z = tMin.Z;
+                tMax.Z = temp;
             }
 
             var maxTMin = tMin.Max();
             var minTMax = tMax.Min();
 
-            if (maxTMin < 0 || minTMax < 0 || maxTMin > minTMax)
+            if (minTMax < 0 || maxTMin > minTMax)
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
-            else
+
+            var finalT = maxTMin > 0 ? maxTMin : minTMax;
+            
+            var intersectionPoint = transformedRay + finalT;
+            Vector3 normal;
+            if (Math.Abs(intersectionPoint.X - MinimumPoint.X) < Constant.Epsilon)
             {
-                return new Intersection()
-                {
-                    Intersect = true,
-                    T = maxTMin,
-                    ContactObject = this,
-                    ContactMaterial = SurfaceMaterial,
-                    Position = ray + maxTMin
-                    //Normal =
-                };
+                normal = -Vector3.UnitX;
             }
+            else if (Math.Abs(intersectionPoint.X - MaximumPoint.X) < Constant.Epsilon)
+            {
+                normal = Vector3.UnitX;
+            }
+            else if (Math.Abs(intersectionPoint.Y - MinimumPoint.Y) < Constant.Epsilon)
+            {
+                normal = -Vector3.UnitY;
+            }
+            else if (Math.Abs(intersectionPoint.Y - MaximumPoint.Y) < Constant.Epsilon)
+            {
+                normal = Vector3.UnitY;
+            }
+            else if (Math.Abs(intersectionPoint.Z - MinimumPoint.Z) < Constant.Epsilon)
+            {
+                normal = -Vector3.UnitZ;
+            }
+            else // if (Math.Abs(intersectionPoint.Z - MaximumPoint.Z) < Constant.Epsilon)
+            {
+                normal = Vector3.UnitZ;
+            }
+
+
+            return new Intersection()
+            {
+                T = finalT,
+                ContactObject = this,
+                ContactMaterial = SurfaceMaterial,
+                Position = intersectionPoint,
+                Normal = normal,
+                Inside = maxTMin < 0
+            };
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using Aura.VecMath;
-using System;
+﻿using System;
+using System.Numerics;
 
 namespace Aura
 {
@@ -15,19 +15,23 @@ namespace Aura
             RNG = new Random();
         }
 
-        public Vec3 Trace(Ray ray, int recursionDepth = 0)
+        public Vector3 Trace(Ray ray, int recursionDepth = 0)
         {
             var intersection = MainScene.Intersect(ray);
 
-            if (!intersection.Intersect)
+            if (intersection == null)
             {
                 return MainScene.BackgroundColor;
             }
 
             var contactMaterial = intersection.ContactMaterial;
 
-            var maxReflectance = contactMaterial.Diffuse.Max();
+            if (recursionDepth > 100)
+            {
+                return contactMaterial.Emission;
+            }
 
+            var maxReflectance = contactMaterial.Diffuse.Max();
             if (++recursionDepth > MainScene.RecursiveDepthLimit)
             {
                 if (RNG.NextDouble() < maxReflectance)
@@ -59,28 +63,28 @@ namespace Aura
             }
         }
 
-        private Vec3 DiffuseRadiance(Ray ray, Intersection intersection, int recursionDepth)
+        private Vector3 DiffuseRadiance(Ray ray, Intersection intersection, int recursionDepth)
         {
             var contactMaterial = intersection.ContactMaterial;
-            var reflectedRay = new Ray(intersection.Position, Vec3.RandomHemisphereVector_Uniform(intersection.Normal, RNG));
-            var cosTheta = reflectedRay.Direction.Dot(intersection.Normal);
+            var reflectedRay = new Ray(intersection.Position, Rand.RandomHemisphereVector_Uniform(intersection.Normal));
+            var cosTheta = Vector3.Dot(reflectedRay.Direction, intersection.Normal);
             var brdf = 2 * contactMaterial.Diffuse * cosTheta;
             return contactMaterial.Emission + brdf * Trace(reflectedRay, recursionDepth);
         }
 
-        private Vec3 ReflectiveRadiance(Ray ray, Intersection intersection, int recursionDepth)
+        private Vector3 ReflectiveRadiance(Ray ray, Intersection intersection, int recursionDepth)
         {
             var contactMaterial = intersection.ContactMaterial;
-            var reflectedRay = new Ray(intersection.Position, ray.Direction.Reflect(intersection.Normal));
+            var reflectedRay = new Ray(intersection.Position, Vector3.Reflect(ray.Direction, intersection.Normal));
             return contactMaterial.Emission + contactMaterial.Diffuse * Trace(reflectedRay, recursionDepth);
         }
 
-        private Vec3 RefractionRadiance(Ray ray, Intersection intersection, int recursionDepth)
+        private Vector3 RefractionRadiance(Ray ray, Intersection intersection, int recursionDepth)
         {
             var contactMaterial = intersection.ContactMaterial;
 
-            var reflectedRay = new Ray(intersection.Position, ray.Direction.Reflect(intersection.Normal));
-            var cosIncidentAngle = ray.Direction.Dot(intersection.Inside ? -intersection.Normal : intersection.Normal);
+            var reflectedRay = new Ray(intersection.Position, Vector3.Reflect(ray.Direction, intersection.Normal));
+            var cosIncidentAngle = Vector3.Dot(ray.Direction, intersection.Inside ? -intersection.Normal : intersection.Normal);
 
             var refractionIndexAir = 1;
             var refractionIndexObj = contactMaterial.RefractionIndex;
@@ -93,24 +97,31 @@ namespace Aura
                 return contactMaterial.Emission + contactMaterial.Diffuse * Trace(reflectedRay, recursionDepth);
             }
 
-            var refractionDirection = (ray.Direction * indexRatio - intersection.Normal * ((intersection.Inside) ? -1 : 1) * (cosIncidentAngle * indexRatio + Math.Sqrt(cos2T))).Normalize();
+            var refractionDirection = Vector3.Normalize(ray.Direction * indexRatio - intersection.Normal * ((intersection.Inside) ? -1 : 1) * (cosIncidentAngle * indexRatio + (float)Math.Sqrt(cos2T)));
             var refractedRay = new Ray(intersection.Position, refractionDirection);
+
+            // Reflection and refraction ratio using Fresnel equations
 
             var A = refractionIndexObj - refractionIndexAir;
             var B = refractionIndexObj + refractionIndexAir;
             var R = A * A / (B * B);
-
-            var C = 1 - (intersection.Inside ? refractionDirection.Dot(intersection.Normal) : -cosIncidentAngle);
-            var re = R + (1 - R) * Math.Pow(C, 5);
+            
+            var C = 1 - (intersection.Inside ? Vector3.Dot(refractionDirection, intersection.Normal) : -cosIncidentAngle);
+            var re = R + (1 - R) * (float)Math.Pow(C, 5);
             var tr = 1 - re;
-            var pp = 0.25 + 0.5 * re;
+            var pp = 0.25f + 0.5f * re;
             var rp = re / pp;
             var tp = tr / (1 - pp);
 
-            return contactMaterial.Emission + contactMaterial.Diffuse * (
-                recursionDepth > 4 ?
-                    (RNG.NextDouble() < pp ? Trace(reflectedRay, recursionDepth) * rp : Trace(refractedRay, recursionDepth)) :
-                    Trace(reflectedRay, recursionDepth) * re + Trace(refractedRay, recursionDepth) * tr                        
+            return contactMaterial.Emission + contactMaterial.Diffuse * 
+                (
+                    recursionDepth > 4 ?
+                    (
+                        RNG.NextDouble() < pp ? 
+                            Trace(reflectedRay, recursionDepth) * rp :
+                            Trace(refractedRay, recursionDepth)
+                    ) :
+                        Trace(reflectedRay, recursionDepth) * re + Trace(refractedRay, recursionDepth) * tr                        
                 );
         }
     }
