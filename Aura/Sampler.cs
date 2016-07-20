@@ -1,5 +1,4 @@
-﻿using Aura.VecMath;
-using System;
+﻿using System;
 
 namespace Aura
 {
@@ -36,8 +35,8 @@ namespace Aura
             {
                 X = CurrentX,
                 Y = CurrentY,
-                OffsetX = RNG.NextDouble() * 2 - 1,
-                OffsetY = RNG.NextDouble() * 2 - 1
+                OffsetX = (float)RNG.NextDouble() * 2 - 1,
+                OffsetY = (float)RNG.NextDouble() * 2 - 1
             };
 
             if (++CurrentX >= ImageWidth)
@@ -62,9 +61,12 @@ namespace Aura
         }
     }
 
-    class Sample : Vec2
+    class Sample
     {
-        public double OffsetX { get; set; }
-        public double OffsetY { get; set; }
+        public float X { get; set; }
+        public float Y { get; set; }
+
+        public float OffsetX { get; set; }
+        public float OffsetY { get; set; }
     }
 }

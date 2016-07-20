@@ -1,5 +1,5 @@
 ﻿using Aura.Shape;
-using Aura.VecMath;
+using System.Numerics;
 
 namespace Aura
 {
@@ -7,8 +7,8 @@ namespace Aura
     {
         public bool Intersect { get; set; }
         public double T { get; set; }
-        public Vec3 Position { get; set; }
-        public Vec3 Normal { get; set; }
+        public Vector3 Position { get; set; }
+        public Vector3 Normal { get; set; }
         public Material ContactMaterial{ get; set; }
         public Primitive ContactObject { get; set; }
         public bool Inside { get; set; }

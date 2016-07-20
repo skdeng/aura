@@ -1,43 +1,39 @@
-﻿using Aura.VecMath;
-using System;
+﻿using System;
+using System.Numerics;
 
 namespace Aura
 {
     class Camera
     {
-        public Vec3 Position { get; set; }
+        public Vector3 Position { get; set; }
 
-        Vec3 _Direction;
-        public Vec3 Direction
+        Vector3 _Direction;
+        public Vector3 Direction
         {
             get { return _Direction; }
             set
             {
-                _Direction = value.Clone() as Vec3;
+                _Direction = value.Copy();
                 if (Up == null)
                 {
                     return;
                 }
-                W = -_Direction.Normalize();
-                U = Up.Cross(W).Normalize();
-                V = W.Cross(U).Normalize();
+                UpdateReferenceFrame();
             }
         }
 
-        Vec3 _Up;
-        public Vec3 Up
+        Vector3 _Up;
+        public Vector3 Up
         {
             get { return _Up; }
             set
             {
-                _Up = value.Clone() as Vec3;
+                _Up = value.Copy();
                 if (Direction == null)
                 {
                     return;
                 }
-                W = -Direction.Normalize();
-                U = _Up.Cross(W).Normalize();
-                V = W.Cross(U).Normalize();
+                UpdateReferenceFrame();
             }
         }
 
@@ -49,11 +45,11 @@ namespace Aura
 
         public int ImageHeight { get; set; }
 
-        private Vec3 U { get; set; }
+        private Vector3 U { get; set; }
 
-        private Vec3 V { get; set; }
+        private Vector3 V { get; set; }
 
-        private Vec3 W { get; set; }
+        private Vector3 W { get; set; }
 
         public Camera()
         {
@@ -72,8 +68,9 @@ namespace Aura
 
         public Ray GetRay(Sample sample)
         {
-            var thetaX = Math.Tan((Math.PI / 180) * FOVX / 2);
-            var thetaY = Math.Tan((Math.PI / 180) * FOVY / 2);
+            // optimize outside
+            var thetaX = (float)Math.Tan((Math.PI / 180) * FOVX / 2);
+            var thetaY = (float)Math.Tan((Math.PI / 180) * FOVY / 2);
 
             var halfWidth = ImageWidth / 2;
             var halfHeight = ImageHeight / 2;
@@ -81,7 +78,14 @@ namespace Aura
             var alpha = thetaX * ((sample.X + sample.OffsetX) - halfWidth) / halfWidth;
             var beta = thetaY * (halfHeight - (sample.Y - sample.OffsetY)) / halfHeight;
 
-            return new Ray(Position, (alpha * U + beta * V - W).Normalize());
+            return new Ray(Position, Vector3.Normalize(alpha * U + beta * V - W));
+        }
+
+        private void UpdateReferenceFrame()
+        {
+            W = -Vector3.Normalize(_Direction);
+            U = Vector3.Normalize(Vector3.Cross(Up, W));
+            V = Vector3.Normalize(Vector3.Cross(W, U));
         }
     }
 }

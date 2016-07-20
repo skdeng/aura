@@ -2,10 +2,10 @@
 {
     static class Constant
     {
-        public static double RayMinimum = 1e-3;
-        public static double RayMaximum = 1e3;
+        public static float RayMinimum = 1e-3f;
+        public static float RayMaximum = 1e3f;
 
-        public static double PlaneHorizon = 0.001;
-        public static double ReflectanceMinimum = 0.001;
+        public static float PlaneHorizon = 0.001f;
+        public static float ReflectanceMinimum = 0.001f;
     }
 }

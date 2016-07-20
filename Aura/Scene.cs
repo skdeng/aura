@@ -1,8 +1,8 @@
 ﻿using Aura.Shape;
-using Aura.VecMath;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Xml.Linq;
 
 namespace Aura
@@ -13,19 +13,19 @@ namespace Aura
 
         public int ImageHeight { get; private set; }
 
-        public Vec3 BackgroundColor { get; private set; }
+        public Vector3 BackgroundColor { get; private set; }
         
-        public double Exposure { get; private set; }
+        public float Exposure { get; private set; }
 
         public int RecursiveDepthLimit { get; set; }
 
-        public Vec3 CameraPosition { get; private set; }
+        public Vector3 CameraPosition { get; private set; }
 
-        public Vec3 CameraDirection { get; private set; }
+        public Vector3 CameraDirection { get; private set; }
 
-        public Vec3 CameraUp { get; private set; }
+        public Vector3 CameraUp { get; private set; }
 
-        public double CameraFOV { get; private set; }
+        public float CameraFOV { get; private set; }
 
         public List<Primitive> SceneObject { get; set; }
 
@@ -39,15 +39,15 @@ namespace Aura
 
             ImageWidth = int.Parse(sceneRoot.Attribute("image_width").Value);
             ImageHeight = int.Parse(sceneRoot.Attribute("image_height").Value);
-            BackgroundColor = new Vec3(sceneRoot.Attribute("background_color").Value);
-            Exposure = double.Parse(sceneRoot.Attribute("exposure").Value);
+            BackgroundColor = sceneRoot.Attribute("background_color").Value.ToVec();
+            Exposure = float.Parse(sceneRoot.Attribute("exposure").Value);
             RecursiveDepthLimit = int.Parse(sceneRoot.Attribute("recursive_depth_limit").Value);
 
             var cameraNode = sceneRoot.Descendants().First(node => node.Name.LocalName.Equals("camera"));
-            CameraPosition = new Vec3(cameraNode.Attribute("position").Value);
-            CameraDirection = new Vec3(cameraNode.Attribute("direction").Value);
-            CameraUp = new Vec3(cameraNode.Attribute("up").Value);
-            CameraFOV = double.Parse(cameraNode.Attribute("fov").Value);
+            CameraPosition = cameraNode.Attribute("position").Value.ToVec();
+            CameraDirection = cameraNode.Attribute("direction").Value.ToVec();
+            CameraUp = cameraNode.Attribute("up").Value.ToVec();
+            CameraFOV = float.Parse(cameraNode.Attribute("fov").Value);
 
             var materials = sceneRoot.Descendants().First(node => node.Name.LocalName.Equals("materials"));
             MaterialBank = materials.Descendants()
@@ -56,10 +56,10 @@ namespace Aura
                                         name = node.Name.LocalName,
                                         material = new Material()
                                         {
-                                            Emission = new Vec3(node.Attribute("emission").Value),
-                                            Diffuse = new Vec3(node.Attribute("diffuse").Value),
-                                            Transparency = new Vec3(node.Attribute("transparency").Value),
-                                            RefractionIndex = double.Parse(node.Attribute("refraction_index").Value),
+                                            Emission = node.Attribute("emission").Value.ToVec(),
+                                            Diffuse = node.Attribute("diffuse").Value.ToVec(),
+                                            Transparency = node.Attribute("transparency").Value.ToVec(),
+                                            RefractionIndex = float.Parse(node.Attribute("refraction_index").Value),
                                             Type = (Material.MaterialType) Enum.Parse(typeof(Material.MaterialType), node.Attribute("type").Value, ignoreCase: true)
                                         }
                                     }).ToDictionary(x => x.name, x => x.material);
@@ -72,7 +72,7 @@ namespace Aura
                     case "sphere":
                         return new Sphere()
                         {
-                            Center = new Vec3(obj.Attribute("center").Value),
+                            Center = obj.Attribute("center").Value.ToVec(),
                             Radius = double.Parse(obj.Attribute("radius").Value),
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
                             Name = obj.Attribute("name")?.Value
@@ -80,16 +80,16 @@ namespace Aura
                     case "aabb":
                         return new AABB()
                         {
-                            MinimumPoint = new Vec3(obj.Attribute("min_point").Value),
-                            MaximumPoint = new Vec3(obj.Attribute("max_point").Value),
+                            MinimumPoint = obj.Attribute("min_point").Value.ToVec(),
+                            MaximumPoint = obj.Attribute("max_point").Value.ToVec(),
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
                             Name = obj.Attribute("name")?.Value
                         } as Primitive;
                     case "plane":
-                        return new Plane()
+                        return new Shape.Plane()
                         {
-                            Origin = new Vec3(obj.Attribute("origin").Value),
-                            Normal = new Vec3(obj.Attribute("normal").Value),
+                            Origin = obj.Attribute("origin").Value.ToVec(),
+                            Normal = obj.Attribute("normal").Value.ToVec(),
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
                             SurfaceMaterialSecondary = obj.Attribute("material_secondary") != null ? MaterialBank[obj.Attribute("material_secondary").Value] : null,
                             Name = obj.Attribute("name")?.Value

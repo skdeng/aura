@@ -40,6 +40,10 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.1.1\lib\portable-net45+win8+wp8+wpa81\System.Numerics.Vectors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -76,7 +80,7 @@
     <Compile Include="Shape\Triangle.cs" />
     <Compile Include="Values\Color.cs" />
     <Compile Include="Values\Constant.cs" />
-    <Compile Include="VecMath\Rand.cs" />
+    <Compile Include="Rand.cs" />
     <Compile Include="VecMath\Vec2.cs" />
     <Compile Include="VecMath\Vec3.cs" />
     <Page Include="MainWindow.xaml">
@@ -110,6 +114,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
