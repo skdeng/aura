@@ -1,9 +1,9 @@
 <scene 
-  	image_width="800"
-	image_height="600"
+  	image_width="600"
+	image_height="400"
 	background_color="0 0 0"
 	exposure="1"
-	recursive_depth_limit="16">
+	recursive_depth_limit="4">
 
 	<camera 
    		position="0 3 10"

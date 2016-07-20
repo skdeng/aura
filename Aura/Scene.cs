@@ -104,21 +104,20 @@ namespace Aura
 
         public Intersection Intersect(Ray ray)
         {
-            Intersection finalIntersection = new Intersection() { Intersect = false, T = double.PositiveInfinity };
+            Intersection finalIntersection = null;
 
             // TODO add acceleration structure instead of iterating through everything
             foreach (var obj in SceneObject)
             {
                 var tempIntersection = obj.Intersect(ray);
-                if (tempIntersection.Intersect)
+                if (tempIntersection != null)
                 {
-                    if (tempIntersection.T < finalIntersection.T)
+                    if (finalIntersection == null || tempIntersection.T < finalIntersection.T)
                     {
                         finalIntersection = tempIntersection;
                     }
                 }
             }
-
             return finalIntersection;
         }
     }

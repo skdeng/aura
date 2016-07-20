@@ -19,15 +19,19 @@ namespace Aura
         {
             var intersection = MainScene.Intersect(ray);
 
-            if (!intersection.Intersect)
+            if (intersection == null)
             {
                 return MainScene.BackgroundColor;
             }
 
             var contactMaterial = intersection.ContactMaterial;
 
-            var maxReflectance = contactMaterial.Diffuse.Max();
+            if (recursionDepth > 100)
+            {
+                return contactMaterial.Emission;
+            }
 
+            var maxReflectance = contactMaterial.Diffuse.Max();
             if (++recursionDepth > MainScene.RecursiveDepthLimit)
             {
                 if (RNG.NextDouble() < maxReflectance)

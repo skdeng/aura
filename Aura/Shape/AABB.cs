@@ -41,13 +41,12 @@ namespace Aura.Shape
 
             if (maxTMin < 0 || minTMax < 0 || maxTMin > minTMax)
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
             else
             {
                 return new Intersection()
                 {
-                    Intersect = true,
                     T = maxTMin,
                     ContactObject = this,
                     ContactMaterial = SurfaceMaterial,

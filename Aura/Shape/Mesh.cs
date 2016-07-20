@@ -15,19 +15,19 @@ namespace Aura.Shape
 
         public override Intersection Intersect(Ray ray)
         {
-            if (!BoundingBox.Intersect(ray).Intersect)
+            if (BoundingBox.Intersect(ray) != null)
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
 
-            Intersection finalIntersection = new Intersection() { Intersect = false, T = double.PositiveInfinity };
+            Intersection finalIntersection = null;
 
             foreach (var triangle in Triangles)
             {
                 var tempIntersection = triangle.Intersect(ray);
-                if (tempIntersection.Intersect)
+                if (tempIntersection != null)
                 {
-                    if (tempIntersection.T < finalIntersection.T)
+                    if (finalIntersection == null || tempIntersection.T < finalIntersection.T)
                     {
                         finalIntersection = tempIntersection;
                     }

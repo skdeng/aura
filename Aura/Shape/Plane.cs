@@ -16,22 +16,16 @@ namespace Aura.Shape
 
             if (rayPlaneAngle > -Constant.PlaneHorizon && rayPlaneAngle < Constant.PlaneHorizon)
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
             else
             {
                 var tempT = Vector3.Dot((Origin - ray.Position), Normal) / rayPlaneAngle;
 
-                if (tempT < ray.Min || tempT > ray.Max)
-                {
-                    return new Intersection() { Intersect = false };
-                }
-
                 var intersectionPoint = ray + tempT;
 
                 return new Intersection()
                 {
-                    Intersect = true,
                     T = tempT,
                     ContactObject = this,
                     Normal = Normal,

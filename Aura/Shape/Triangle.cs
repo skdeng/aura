@@ -83,25 +83,20 @@ namespace Aura.Shape
             var angle = Vector3.Dot(ray.Direction, Normal);
             if (angle > -Constant.PlaneHorizon && angle < Constant.PlaneHorizon)    // tangent = no intersection
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
 
             var tempT = (Vector3.Dot(A, Normal) - Vector3.Dot(ray.Position, Normal)) / angle;
-            if (tempT < ray.Min || tempT > ray.Max)
-            {
-                return new Intersection() { Intersect = false };
-            }
 
             var intersectionPoint = ray + tempT;
 
             if (!Inside(intersectionPoint))
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
 
             return new Intersection()
             {
-                Intersect = true,
                 T = tempT,
                 Position = intersectionPoint,
                 Normal = Normal,

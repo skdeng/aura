@@ -39,8 +39,8 @@ namespace Aura
         public void Commit(Sample sample, Vector3 color)
         {
             color = color / SampleCount;
-            var existingColor = BackBuffer[(int)sample.X + (int)sample.Y * Width] * (SampleCount - 1) / SampleCount;
-            BackBuffer[(int)sample.X + (int)sample.Y * Width] = (existingColor + color).Clamp(0, 1);
+            var existingColor = BackBuffer[sample.X + sample.Y * Width] * (SampleCount - 1) / SampleCount;
+            BackBuffer[sample.X + sample.Y * Width] = (existingColor + color).Clamp(0, 1);
         }
 
         public void Refresh()

@@ -31,13 +31,13 @@ namespace Aura.Shape
             var determinant = directionDotOC * directionDotOC - ocLength * ocLength + RadiusSq;
 
             // No intersection
-            if (determinant < 0)
+            if (determinant < 0 || directionDotOC > 0)
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
 
             var tempT = -directionDotOC;
-
+            
             // Determinant larger than zero => 2 intersections
             bool inside = false;
             if (determinant > 0)
@@ -57,12 +57,7 @@ namespace Aura.Shape
                 }
             }
 
-            if (tempT < ray.Min || tempT > ray.Max)
-            {
-                return new Intersection() { Intersect = false };
-            }
-
-            var intersection = new Intersection() { Intersect = true, T = tempT, ContactObject = this, ContactMaterial = (Material)SurfaceMaterial.Clone(), Position = ray + tempT, Inside = inside };
+            var intersection = new Intersection() { T = tempT, ContactObject = this, ContactMaterial = (Material)SurfaceMaterial.Clone(), Position = ray + tempT, Inside = inside };
             intersection.Normal = Vector3.Normalize(intersection.Position - Center);
 
             return intersection;

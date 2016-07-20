@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Threading;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Aura
 {
@@ -60,6 +61,10 @@ namespace Aura
                 Debug.WriteLine($"Rendering frame {frame++}");
                 while ((sample = PixelSampler.GetSample()) != null)
                 {
+                    if (sample.X == 300)
+                    {
+                        var x = 1;
+                    }
                     ImageData.Commit(sample, Tracer.Trace(MainCamera.GetRay(sample)));
                 }
                 ImageData.Refresh();
@@ -112,6 +117,11 @@ namespace Aura
         {
             public int Start, End;
             public int Index;
+        }
+
+        private void MainCanvas_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Debug.WriteLine(Mouse.GetPosition(MainImage));
         }
     }
 }
