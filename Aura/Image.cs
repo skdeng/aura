@@ -41,11 +41,9 @@ namespace Aura
 
         public void Commit(Sample sample, Vec3 color)
         {
-            color = color.Clamp(0, 1);
             color = color / SampleCount;
             var existingColor = BackBuffer[(int)sample.X + (int)sample.Y * Width] * (SampleCount - 1) / SampleCount;
-
-            BackBuffer[(int)sample.X + (int)sample.Y * Width] = Exposure * (existingColor + color);
+            BackBuffer[(int)sample.X + (int)sample.Y * Width] = (existingColor + color).Clamp(0,1);
         }
 
         public void Refresh()
@@ -110,6 +108,7 @@ namespace Aura
                 var content = new List<string>();
                 content.Add($"Total sample: {SampleCount.ToString()}");
                 content.Add($"Elapsed time: {(double)MainWindow.stopwatch.ElapsedMilliseconds / 1000.0} seconds");
+                content.Add($"Time per sample: {MainWindow.stopwatch.ElapsedMilliseconds / SampleCount} ms");
                 File.WriteAllLines(logFile, content);
             }
         }

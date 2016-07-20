@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace Aura
 {
-    class Scene
+    class Scene : IIntersectable
     {
         public int ImageWidth { get; private set; }
 

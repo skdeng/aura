@@ -66,15 +66,6 @@ namespace Aura
             var cosTheta = reflectedRay.Direction.Dot(intersection.Normal);
             var brdf = 2 * contactMaterial.Diffuse * cosTheta;
             return contactMaterial.Emission + brdf * Trace(reflectedRay, recursionDepth);
-
-            //var r1 = 2 * Math.PI * RNG.NextDouble();
-            //var r2 = RNG.NextDouble();
-            //var r2SquareRoot = Math.Sqrt(r2);
-            //var w = intersection.Normal;
-            //var u = (Math.Abs(w.X) > .1 ? new Vec3(0,1,0): new Vec3(1,0,0).Cross(w)).Normalize();
-            //var v = w.Cross(u);
-            //var d = (u * Math.Cos(r1) * r2SquareRoot + v * Math.Sin(r1) * r2SquareRoot + w * Math.Sqrt(1 - r2)).Normalize();
-            //return contactMaterial.Emission + contactMaterial.Diffuse * Trace(new Ray(intersection.Position, d), recursionDepth);
         }
 
         private Vec3 ReflectiveRadiance(Ray ray, Intersection intersection, int recursionDepth)
@@ -103,7 +94,6 @@ namespace Aura
             }
 
             var refractionDirection = (ray.Direction * indexRatio - intersection.Normal * ((intersection.Inside) ? -1 : 1) * (cosIncidentAngle * indexRatio + Math.Sqrt(cos2T))).Normalize();
-            //var refractionDirection = ray.Direction.Refract(intersection.Inside ? -intersection.Normal : intersection.Normal, contactMaterial.RefractionIndex);
             var refractedRay = new Ray(intersection.Position, refractionDirection);
 
             var A = refractionIndexObj - refractionIndexAir;

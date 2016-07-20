@@ -1,6 +1,6 @@
 <scene 
-  image_width="400"
-	image_height="300"
+  	image_width="800"
+	image_height="600"
 	background_color="0 0 0"
 	exposure="1"
 	recursive_depth_limit="16">
@@ -23,7 +23,7 @@
 			diffuse="0 0 0"
 			transparency="0 0 0"
 			refraction_index="1" 
-			type="emissive"/>
+			type="emissive" />
 		<white
 			emission="0 0 0"
 			diffuse="1 1 1"
@@ -66,23 +66,34 @@
 			transparency="0 0 0"
 			refraction_index="1" 
 			type="reflective"/>
+		<pink_gold
+			emission="0 0 0"
+			diffuse="1 0.7137 0.75686"
+			transparency="0 0 0"
+			refraction_index="1" 
+			type="reflective"/>
 	</materials>
 
 	<object name="gold sphere"
 		type="sphere"
-		center="-1 0.7 0"
+		center="-1.2 0.7 0"
 		radius="0.7"
 		material="gold" />
+	<object name="pinkgold sphere"
+		type="sphere"
+		center="-0.5 1.5 -4"
+		radius="1.5"
+		material="pink_gold" />
 	<object name="glass sphere"
 		type="sphere"
-		center="1.2 1.2 -1"
+		center="1.5 1 -1"
 		radius="1"
 		material="glass" />	
 	<object name="top light"
 		type="sphere"
-		center="0 15.5 -3"
-		radius="10"
-		material="light"/>
+		center="0 7.5 -3"
+		radius="3"
+		material="light"/>	
 	<object name="left"
 		type="sphere"
 		center="-10004 0 0"
@@ -105,12 +116,12 @@
 		material="white"/>
 	<object name="back"
 		type="sphere"
-		center="0 0 -10008"
+		center="0 0 -10007"
 		radius="10000"
 		material="white"/>
 	<object name="front"
 		type="sphere"
-		center="0 0 10012"
+		center="0 0 10011"
 		radius="10000"
-		material="black"/>
+		material="white"/>
 </scene>

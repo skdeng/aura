@@ -1,6 +1,6 @@
 ﻿namespace Aura.Shape
 {
-    abstract class Primitive
+    abstract class Primitive : IIntersectable
     {
         public string Name { get; set; }
         public Material SurfaceMaterial { get; set; }
