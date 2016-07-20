@@ -1,9 +1,4 @@
 ﻿using Aura.VecMath;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aura.Shape
 {
@@ -15,7 +10,7 @@ namespace Aura.Shape
 
         public override Intersection Intersect(Ray ray)
         {
-            Vec3 difference = 1 / ray.Direction;
+            Vec3 difference = ray.InverseDirection;
 
             Vec3 tMin = (MinimumPoint - ray.Position) * difference;
             Vec3 tMax = (MaximumPoint - ray.Position) * difference;
@@ -57,8 +52,7 @@ namespace Aura.Shape
                     ContactObject = this,
                     ContactMaterial = SurfaceMaterial,
                     Position = ray + maxTMin
-                    // TODO finish this
-                    //Normal = 
+                    //Normal =
                 };
             }
         }

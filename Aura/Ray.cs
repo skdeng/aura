@@ -5,10 +5,11 @@ namespace Aura
 {
     class Ray
     {
-        public Vec3 Position { get; set; }
-        public Vec3 Direction { get; set; }
-        public double Min { get; set; }
-        public double Max { get; set; }
+        public Vec3 Position { get; }
+        public Vec3 Direction { get; }
+        public Vec3 InverseDirection { get; }
+        public double Min { get; }
+        public double Max { get; }
 
         public Ray()
         {
@@ -16,12 +17,8 @@ namespace Aura
             Direction = new Vec3();
         }
 
-        public Ray(Vec3 position, Vec3 direction)
+        public Ray(Vec3 position, Vec3 direction) : this(position, direction, Constant.RayMinimum, Constant.RayMaximum)
         {
-            Position = position;
-            Direction = direction;
-            Min = Constant.RayMinimum;
-            Max = Constant.RayMaximum;
         }
 
         public Ray(Vec3 position, Vec3 direction, double min, double max)
@@ -30,6 +27,8 @@ namespace Aura
             Direction = direction;
             Min = min;
             Max = max;
+
+            InverseDirection = 1 / direction;
         }
 
         public static Vec3 operator +(Ray r, double t)

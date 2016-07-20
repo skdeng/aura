@@ -48,6 +48,18 @@ namespace Aura
 
             return sample;
         }
+
+        public Sample[] GetAllSamples()
+        {
+            var sampleList = new Sample[ImageWidth * ImageHeight];
+            Sample sample = GetSample();
+            for (int i = 0; sample != null; i++)
+            {
+                sampleList[i] = sample;
+                sample = GetSample();
+            }
+            return sampleList;
+        }
     }
 
     class Sample : Vec2

@@ -26,11 +26,6 @@ namespace Aura
 
             var contactMaterial = intersection.ContactMaterial;
 
-            if (recursionDepth > 50)
-            {
-                return contactMaterial.Emission;
-            }
-
             var maxReflectance = contactMaterial.Diffuse.Max();
 
             if (++recursionDepth > MainScene.RecursiveDepthLimit)
@@ -85,25 +80,27 @@ namespace Aura
             var contactMaterial = intersection.ContactMaterial;
 
             var reflectedRay = new Ray(intersection.Position, ray.Direction.Reflect(intersection.Normal));
+            var cosIncidentAngle = ray.Direction.Dot(intersection.Inside ? -intersection.Normal : intersection.Normal);
 
-            var inside = contactMaterial.RefractionIndex < 1;
-
-            var incidentAngle = ray.Direction.Dot(intersection.Normal);
+            var refractionIndexAir = 1;
+            var refractionIndexObj = contactMaterial.RefractionIndex;
+            var indexRatio = intersection.Inside ? refractionIndexObj / refractionIndexAir : refractionIndexAir / refractionIndexObj;
 
             // Total internal reflection
-            var cos2T = 1 - contactMaterial.RefractionIndex * contactMaterial.RefractionIndex * (1 - incidentAngle * incidentAngle);
+            var cos2T = 1 - indexRatio * indexRatio * (1 - cosIncidentAngle * cosIncidentAngle);
             if (cos2T < 0)
             {
                 return contactMaterial.Emission + contactMaterial.Diffuse * Trace(reflectedRay, recursionDepth);
             }
 
-            var refractedRay = new Ray(intersection.Position, (ray.Direction * contactMaterial.RefractionIndex - intersection.Normal * (inside ? -1 : 1) * (incidentAngle * contactMaterial.RefractionIndex + Math.Sqrt(cos2T))).Normalize());
+            var refractionDirection = (ray.Direction * indexRatio - intersection.Normal * ((intersection.Inside) ? -1 : 1) * (cosIncidentAngle * indexRatio + Math.Sqrt(cos2T))).Normalize();
+            var refractedRay = new Ray(intersection.Position, refractionDirection);
 
-            var A = contactMaterial.RefractionIndex - 1;
-            var B = contactMaterial.RefractionIndex + 1;
+            var A = refractionIndexObj - refractionIndexAir;
+            var B = refractionIndexObj + refractionIndexAir;
             var R = A * A / (B * B);
 
-            var C = 1 - (inside ? refractedRay.Direction.Dot(intersection.Normal) : -incidentAngle);
+            var C = 1 - (intersection.Inside ? refractionDirection.Dot(intersection.Normal) : -cosIncidentAngle);
             var re = R + (1 - R) * Math.Pow(C, 5);
             var tr = 1 - re;
             var pp = 0.25 + 0.5 * re;
@@ -111,7 +108,7 @@ namespace Aura
             var tp = tr / (1 - pp);
 
             return contactMaterial.Emission + contactMaterial.Diffuse * (
-                recursionDepth > 2 ?
+                recursionDepth > 4 ?
                     (RNG.NextDouble() < pp ? Trace(reflectedRay, recursionDepth) * rp : Trace(refractedRay, recursionDepth)) :
                     Trace(reflectedRay, recursionDepth) * re + Trace(refractedRay, recursionDepth) * tr                        
                 );
