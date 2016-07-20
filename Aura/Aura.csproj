@@ -76,6 +76,7 @@
     <Compile Include="Shape\Triangle.cs" />
     <Compile Include="Values\Color.cs" />
     <Compile Include="Values\Constant.cs" />
+    <Compile Include="VecMath\Mat4.cs" />
     <Compile Include="VecMath\Rand.cs" />
     <Compile Include="VecMath\Vec2.cs" />
     <Compile Include="VecMath\Vec3.cs" />

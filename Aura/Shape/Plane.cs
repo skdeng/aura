@@ -12,6 +12,11 @@ namespace Aura.Shape
 
         public override Intersection Intersect(Ray ray)
         {
+            if (Transform != null)
+            {
+                var transformedRay = new Ray(Transform.TransformPoint(ray.Position), Transform.TransformVector(ray.Direction));
+            }
+
             double rayPlaneAngle = ray.Direction.Dot(Normal);
 
             if (rayPlaneAngle > -Constant.PlaneHorizon && rayPlaneAngle < Constant.PlaneHorizon)
