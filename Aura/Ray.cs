@@ -1,37 +1,29 @@
 ﻿using Aura.Values;
-using Aura.VecMath;
+using System.Numerics;
 
 namespace Aura
 {
     class Ray
     {
-        public Vec3 Position { get; }
-        public Vec3 Direction { get; }
-        public Vec3 InverseDirection { get; }
-        public double Min { get; }
-        public double Max { get; }
+        public Vector3 Position { get; }
+        public Vector3 Direction { get; }
+        public Vector3 InverseDirection { get; }
 
         public Ray()
         {
-            Position = new Vec3();
-            Direction = new Vec3();
+            Position = new Vector3();
+            Direction = new Vector3();
         }
-
-        public Ray(Vec3 position, Vec3 direction) : this(position, direction, Constant.RayMinimum, Constant.RayMaximum)
+        
+        public Ray(Vector3 position, Vector3 direction)
         {
-        }
-
-        public Ray(Vec3 position, Vec3 direction, double min, double max)
-        {
-            Position = position;
+            Position = position + direction * Constant.RayMinimum;
             Direction = direction;
-            Min = min;
-            Max = max;
 
-            InverseDirection = 1 / direction;
+            InverseDirection = new Vector3(1 / direction.X, 1 / direction.Y, 1 / direction.Z);
         }
 
-        public static Vec3 operator +(Ray r, double t)
+        public static Vector3 operator +(Ray r, float t)
         {
             return r.Position + t * r.Direction;
         }

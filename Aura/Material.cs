@@ -1,5 +1,5 @@
-﻿using Aura.VecMath;
-using System;
+﻿using System;
+using System.Numerics;
 
 namespace Aura
 {
@@ -13,19 +13,19 @@ namespace Aura
             Emissive
         }
 
-        public Vec3 Emission { get; set; }
-        public Vec3 Diffuse { get; set; }
-        public Vec3 Transparency { get; set; }
-        public double RefractionIndex { get; set; }
+        public Vector3 Emission { get; set; }
+        public Vector3 Diffuse { get; set; }
+        public Vector3 Transparency { get; set; }
+        public float RefractionIndex { get; set; }
         public MaterialType Type { get; set; }
 
         public object Clone()
         {
             return new Material()
             {
-                Emission = (Vec3)Emission.Clone(),
-                Diffuse = (Vec3)Diffuse.Clone(),
-                Transparency = (Vec3)Transparency.Clone(),
+                Emission = Emission.Copy(),
+                Diffuse = Diffuse.Copy(),
+                Transparency = Transparency.Copy(),
                 RefractionIndex = RefractionIndex,
                 Type = Type
             };

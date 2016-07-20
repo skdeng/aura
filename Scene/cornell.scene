@@ -1,9 +1,9 @@
 <scene 
-  	image_width="800"
-	image_height="600"
+  	image_width="600"
+	image_height="400"
 	background_color="0 0 0"
 	exposure="1"
-	recursive_depth_limit="16">
+	recursive_depth_limit="4">
 
 	<camera 
    		position="0 3 10"
@@ -88,6 +88,11 @@
 		type="sphere"
 		center="1.5 1 -1"
 		radius="1"
+		material="glass" />	
+	<object name="glass sphere 2"
+		type="sphere"
+		center="1.2 0.7 0.7"
+		radius="0.7"
 		material="glass" />	
 	<object name="top light"
 		type="sphere"

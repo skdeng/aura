@@ -1,11 +1,11 @@
-﻿using Aura.VecMath;
-using System;
+﻿using System;
+using System.Numerics;
 
 namespace Aura.Shape
 {
     class Sphere : Primitive
     {
-        public Vec3 Center { get; set; }
+        public Vector3 Center { get; set; }
 
         private double _Radius { get; set; }
         public double Radius
@@ -25,24 +25,24 @@ namespace Aura.Shape
 
         public override Intersection Intersect(Ray ray)
         {
-            Vec3 oc = ray.Position - Center;
-            double ocLength = oc.Length;
-            double directionDotOC = ray.Direction.Dot(oc);
-            double determinant = directionDotOC * directionDotOC - ocLength * ocLength + RadiusSq;
+            Vector3 oc = ray.Position - Center;
+            var ocLength = oc.Length();
+            var directionDotOC = Vector3.Dot(ray.Direction, oc);
+            var determinant = directionDotOC * directionDotOC - ocLength * ocLength + RadiusSq;
 
             // No intersection
-            if (determinant < 0)
+            if (determinant < 0 || directionDotOC > 0)
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
 
-            double tempT = -directionDotOC;
-
+            var tempT = -directionDotOC;
+            
             // Determinant larger than zero => 2 intersections
             bool inside = false;
             if (determinant > 0)
             {
-                double sqrtDeterminant = Math.Sqrt(determinant);
+                var sqrtDeterminant = (float) Math.Sqrt(determinant);
 
                 // Find closest intersection
                 if (sqrtDeterminant > tempT)
@@ -57,13 +57,8 @@ namespace Aura.Shape
                 }
             }
 
-            if (tempT < ray.Min || tempT > ray.Max)
-            {
-                return new Intersection() { Intersect = false };
-            }
-
-            var intersection = new Intersection() { Intersect = true, T = tempT, ContactObject = this, ContactMaterial = (Material)SurfaceMaterial.Clone(), Position = ray + tempT, Inside = inside };
-            intersection.Normal = (intersection.Position - Center).Normalize();
+            var intersection = new Intersection() { T = tempT, ContactObject = this, ContactMaterial = (Material)SurfaceMaterial.Clone(), Position = ray + tempT, Inside = inside };
+            intersection.Normal = Vector3.Normalize(intersection.Position - Center);
 
             return intersection;
         }

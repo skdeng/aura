@@ -1,19 +1,19 @@
-﻿using Aura.VecMath;
+﻿using System.Numerics;
 
 namespace Aura.Shape
 {
     class AABB : Primitive
     {
-        public Vec3 MinimumPoint { get; set; }
+        public Vector3 MinimumPoint { get; set; }
 
-        public Vec3 MaximumPoint { get; set; }
+        public Vector3 MaximumPoint { get; set; }
 
         public override Intersection Intersect(Ray ray)
         {
-            Vec3 difference = ray.InverseDirection;
+            var difference = ray.InverseDirection;
 
-            Vec3 tMin = (MinimumPoint - ray.Position) * difference;
-            Vec3 tMax = (MaximumPoint - ray.Position) * difference;
+            var tMin = (MinimumPoint - ray.Position) * difference;
+            var tMax = (MaximumPoint - ray.Position) * difference;
 
             // Temporary variable for swapping
             double temp;
@@ -41,13 +41,12 @@ namespace Aura.Shape
 
             if (maxTMin < 0 || minTMax < 0 || maxTMin > minTMax)
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
             else
             {
                 return new Intersection()
                 {
-                    Intersect = true,
                     T = maxTMin,
                     ContactObject = this,
                     ContactMaterial = SurfaceMaterial,

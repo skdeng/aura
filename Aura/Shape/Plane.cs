@@ -1,37 +1,31 @@
 ﻿using Aura.Values;
-using Aura.VecMath;
 using System;
+using System.Numerics;
 
 namespace Aura.Shape
 {
     class Plane : Primitive
     {
-        public Vec3 Normal { get; set; }
-        public Vec3 Origin { get; set; }
+        public Vector3 Normal { get; set; }
+        public Vector3 Origin { get; set; }
         public Material SurfaceMaterialSecondary { get; set; }
 
         public override Intersection Intersect(Ray ray)
         {
-            double rayPlaneAngle = ray.Direction.Dot(Normal);
+            var rayPlaneAngle = Vector3.Dot(ray.Direction, Normal);
 
             if (rayPlaneAngle > -Constant.PlaneHorizon && rayPlaneAngle < Constant.PlaneHorizon)
             {
-                return new Intersection() { Intersect = false };
+                return null;
             }
             else
             {
-                double tempT = (Origin - ray.Position).Dot(Normal) / rayPlaneAngle;
-
-                if (tempT < ray.Min || tempT > ray.Max)
-                {
-                    return new Intersection() { Intersect = false };
-                }
+                var tempT = Vector3.Dot((Origin - ray.Position), Normal) / rayPlaneAngle;
 
                 var intersectionPoint = ray + tempT;
 
                 return new Intersection()
                 {
-                    Intersect = true,
                     T = tempT,
                     ContactObject = this,
                     Normal = Normal,
