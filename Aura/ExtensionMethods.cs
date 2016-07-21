@@ -12,6 +12,11 @@ namespace Aura
             else return val;
         }
 
+        public static float ToRadians(this float val)
+        {
+            return ((float)Math.PI / 180) * val;
+        }
+
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {
             T[] result = new T[length];

@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Aura.Shape
 {
-    class Triangle : Primitive
+    internal class Triangle : Primitive
     {
         private Vector3 _A;
         public Vector3 A
@@ -122,7 +122,7 @@ namespace Aura.Shape
         private bool Inside (Vector3 point)
         {
             var barycentricPoint = Barycentric(point);
-            return barycentricPoint.Min() > 0 && barycentricPoint.Max() < 1;
+            return barycentricPoint.Min() >= 0 && barycentricPoint.Max() <= 1;
         }
 
         /// <summary>

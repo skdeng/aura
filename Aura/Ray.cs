@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Aura
 {
-    class Ray
+    internal class Ray
     {
         public Vector3 Position { get; }
         public Vector4 PositionHomogenous { get; }

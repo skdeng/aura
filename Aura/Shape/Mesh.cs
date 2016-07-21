@@ -24,7 +24,7 @@ namespace Aura.Shape
 
         public override Intersection Intersect(Ray ray)
         {
-            if (BoundingBox.Intersect(ray) != null)
+            if (BoundingBox.Intersect(ray) == null)
             {
                 return null;
             }
@@ -46,9 +46,15 @@ namespace Aura.Shape
             return finalIntersection;
         }
 
-        public void LoadOBJ(string objFile)
+        public static Mesh LoadOBJ(string objFile, Material meshMaterial)
         {
             var content = File.ReadAllLines(objFile);
+
+            var mesh = new Mesh();
+            mesh.SurfaceMaterial = meshMaterial;
+
+            Vector3 minPoint = new Vector3(float.PositiveInfinity);
+            Vector3 maxPoint = new Vector3(float.NegativeInfinity);
 
             var faceRegex = new Regex("f (\\d+)/(\\d+)/(\\d+) (\\d+)/(\\d+)/(\\d+) (\\d+)/(\\d+)/(\\d+)");
             foreach(var line in content)
@@ -56,12 +62,38 @@ namespace Aura.Shape
                 if (line.StartsWith("v "))
                 {
                     var tokens = line.Split(' ');
-                    Vertices.Add(new Vector3(float.Parse(tokens[1]), float.Parse(tokens[2]), float.Parse(tokens[3])));
+                    var vertex = new Vector3(float.Parse(tokens[1]), float.Parse(tokens[2]), float.Parse(tokens[3]));
+                    mesh.Vertices.Add(vertex);
+
+                    if (vertex.X < minPoint.X)
+                    {
+                        minPoint.X = vertex.X;
+                    }
+                    else if (vertex.X > maxPoint.X)
+                    {
+                        maxPoint.X = vertex.X;
+                    }
+                    if (vertex.Y < minPoint.Y)
+                    {
+                        minPoint.Y = vertex.Y;
+                    }
+                    else if (vertex.Y > maxPoint.Y)
+                    {
+                        maxPoint.Y = vertex.Y;
+                    }
+                    if (vertex.Z < minPoint.Z)
+                    {
+                        minPoint.Z = vertex.Z;
+                    }
+                    else if (vertex.Z > maxPoint.Z)
+                    {
+                        maxPoint.Z = vertex.Z;
+                    }
                 }
                 else if (line.StartsWith("vn "))
                 {
                     var tokens = line.Split(' ');
-                    Normals.Add(new Vector3(float.Parse(tokens[1]), float.Parse(tokens[2]), float.Parse(tokens[3])));
+                    mesh.Normals.Add(new Vector3(float.Parse(tokens[1]), float.Parse(tokens[2]), float.Parse(tokens[3])));
                 }
                 else if (line.StartsWith("f "))
                 {
@@ -71,17 +103,21 @@ namespace Aura.Shape
                     {
                         indices[i - 1] = int.Parse(match.Groups[i].Value);
                     }
-                    var averageNormal = Vector3.Normalize(Normals[indices[2] - 1] + Normals[indices[5] - 1] + Normals[indices[8] - 1]);
-                    Triangles.Add(new Triangle()
+                    var averageNormal = Vector3.Normalize(mesh.Normals[indices[2] - 1] + mesh.Normals[indices[5] - 1] + mesh.Normals[indices[8] - 1]);
+                    mesh.Triangles.Add(new Triangle()
                     {
-                        A = Vertices[indices[0] - 1],
-                        B = Vertices[indices[3] - 1],
-                        C = Vertices[indices[6] - 1],
+                        A = mesh.Vertices[indices[0] - 1],
+                        B = mesh.Vertices[indices[3] - 1],
+                        C = mesh.Vertices[indices[6] - 1],
                         Normal = averageNormal,
-                        SurfaceMaterial = this.SurfaceMaterial
+                        SurfaceMaterial = mesh.SurfaceMaterial
                     });
                 }
             }
+
+            mesh.BoundingBox = new AABB() { MinimumPoint = minPoint, MaximumPoint = maxPoint };
+
+            return mesh;
         }
     }
 }

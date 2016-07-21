@@ -31,13 +31,8 @@ namespace Aura
 
         public Dictionary<string, Material> MaterialBank { get; set; }
 
-        public Dictionary<string, Matrix4x4> TransformBank { get; set; }
-        
         public void LoadScene(string sceneFile)
         {
-            var y = new Mesh();
-            y.LoadOBJ("../../../Scene/test.obj");
-
             var sceneRoot = XElement.Load(sceneFile);
 
             ImageWidth = int.Parse(sceneRoot.Attribute("image_width").Value);
@@ -67,30 +62,36 @@ namespace Aura
                                         }
                                     }).ToDictionary(x => x.name, x => x.material);
 
-            var transforms = sceneRoot.Descendants().FirstOrDefault(node => node.Name.LocalName.Equals("transforms"));
-            TransformBank = transforms?.Descendants()
-                                        .Select(node => new
-                                        {
-                                            name = node.Name.LocalName,
-                                            transform = node.Value.ToMat4()
-                                        }).ToDictionary(x => x.name, x => x.transform);
-
             var objects = sceneRoot.Descendants().Where(element => element.Name.LocalName.Equals("object"));
             SceneObject = objects.Select(obj =>
             {
                 var name = obj.Attribute("name")?.Value;
-                Matrix4x4 transform = obj.Attribute("transform") == null ? Matrix4x4.Identity : TransformBank[obj.Attribute("transform").Value];
-                if (transform.IsIdentity)
+                Matrix4x4 transform = Matrix4x4.Identity;
+
+                if (obj.Attribute("translate") != null)
                 {
-                    var transformList = obj.Descendants().Where(node => node.Name.LocalName.Equals("transform")).Select(node => node.Value.ToMat4());
-                    if (transformList.Any())
+                    var translationMatrix = Matrix4x4.CreateTranslation(obj.Attribute("translate").Value.ToVec3());
+                    transform = Matrix4x4.Multiply(transform, translationMatrix);
+                }
+                if (obj.Attribute("rotate") != null)
+                {
+                    var rotationVector = obj.Attribute("rotation").Value.ToVec3();
+                    if (rotationVector.X != 0)
                     {
-                        // Stack all transforms together, in order
-                        foreach(var t in transformList)
-                        {
-                            Matrix4x4.Multiply(transform, t);
-                        }
+                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationX(rotationVector.X.ToRadians()));
                     }
+                    if (rotationVector.Y != 0)
+                    {
+                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationY(rotationVector.Y.ToRadians()));
+                    }
+                    if (rotationVector.Z != 0)
+                    {
+                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationZ(rotationVector.Z.ToRadians()));
+                    }
+                }
+                if (obj.Attribute("scale") != null)
+                {
+                    transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateScale(obj.Attribute("scale").Value.ToVec3()));
                 }
 
                 switch (obj.Attribute("type").Value)
@@ -103,7 +104,7 @@ namespace Aura
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
                             Name = name,
                             Transform = transform,
-                        } as Primitive;
+                        };
                     case "aabb":
                         return new AABB()
                         {
@@ -112,7 +113,7 @@ namespace Aura
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
                             Name = name,
                             Transform = transform,
-                        } as Primitive;
+                        };
                     case "plane":
                         return new Shape.Plane()
                         {
@@ -122,7 +123,7 @@ namespace Aura
                             SurfaceMaterialSecondary = obj.Attribute("material_secondary") != null ? MaterialBank[obj.Attribute("material_secondary").Value] : null,
                             Name = name,
                             Transform = transform,
-                        } as Primitive;
+                        };
                     case "triangle":
                         return new Triangle()
                         {
@@ -133,6 +134,9 @@ namespace Aura
                             Name = name,
                             Transform = transform,
                         } as Primitive;
+                    case "mesh":
+                        var mesh = Mesh.LoadOBJ(obj.Attribute("file").Value, MaterialBank[obj.Attribute("material").Value]);
+                        return mesh;
                     default:
                         return null;
                 }
