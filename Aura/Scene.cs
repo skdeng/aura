@@ -14,7 +14,7 @@ namespace Aura
         public int ImageHeight { get; private set; }
 
         public Vector3 BackgroundColor { get; private set; }
-        
+
         public float Exposure { get; private set; }
 
         public int RecursiveDepthLimit { get; set; }
@@ -58,7 +58,7 @@ namespace Aura
                                             Diffuse = node.Attribute("diffuse").Value.ToVec3(),
                                             Transparency = node.Attribute("transparency").Value.ToVec3(),
                                             RefractionIndex = float.Parse(node.Attribute("refraction_index").Value),
-                                            Type = (Material.MaterialType) Enum.Parse(typeof(Material.MaterialType), node.Attribute("type").Value, ignoreCase: true)
+                                            Type = (Material.MaterialType)Enum.Parse(typeof(Material.MaterialType), node.Attribute("type").Value, ignoreCase: true)
                                         }
                                     }).ToDictionary(x => x.name, x => x.material);
 
@@ -66,33 +66,7 @@ namespace Aura
             SceneObject = objects.Select(obj =>
             {
                 var name = obj.Attribute("name")?.Value;
-                Matrix4x4 transform = Matrix4x4.Identity;
-
-                if (obj.Attribute("translate") != null)
-                {
-                    var translationMatrix = Matrix4x4.CreateTranslation(obj.Attribute("translate").Value.ToVec3());
-                    transform = Matrix4x4.Multiply(transform, translationMatrix);
-                }
-                if (obj.Attribute("rotate") != null)
-                {
-                    var rotationVector = obj.Attribute("rotation").Value.ToVec3();
-                    if (rotationVector.X != 0)
-                    {
-                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationX(rotationVector.X.ToRadians()));
-                    }
-                    if (rotationVector.Y != 0)
-                    {
-                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationY(rotationVector.Y.ToRadians()));
-                    }
-                    if (rotationVector.Z != 0)
-                    {
-                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationZ(rotationVector.Z.ToRadians()));
-                    }
-                }
-                if (obj.Attribute("scale") != null)
-                {
-                    transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateScale(obj.Attribute("scale").Value.ToVec3()));
-                }
+                Matrix4x4 transform = ParseTransformed(obj.Descendants().FirstOrDefault(x => x.Name.LocalName.Equals("transforms")));
 
                 switch (obj.Attribute("type").Value)
                 {
@@ -136,11 +110,51 @@ namespace Aura
                         } as Primitive;
                     case "mesh":
                         var mesh = Mesh.LoadOBJ(obj.Attribute("file").Value, MaterialBank[obj.Attribute("material").Value]);
+                        mesh.Transform = transform;
                         return mesh;
                     default:
                         return null;
                 }
             }).ToList();
+        }
+
+        private Matrix4x4 ParseTransformed(XElement transformNode)
+        {
+            var transform = Matrix4x4.Identity;
+            if (transformNode == null)
+            {
+                return transform;
+            }
+
+            foreach (var t in transformNode.Descendants())
+            {
+                if (t.Name.LocalName.Equals("translate"))
+                {
+                    var translationMatrix = Matrix4x4.CreateTranslation(t.Value.ToVec3());
+                    transform = Matrix4x4.Multiply(transform, translationMatrix);
+                }
+                else if (t.Name.LocalName.Equals("rotate"))
+                {
+                    var rotationVector = t.Value.ToVec3();
+                    if (rotationVector.X != 0)
+                    {
+                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationX(rotationVector.X.ToRadians()));
+                    }
+                    if (rotationVector.Y != 0)
+                    {
+                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationY(rotationVector.Y.ToRadians()));
+                    }
+                    if (rotationVector.Z != 0)
+                    {
+                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationZ(rotationVector.Z.ToRadians()));
+                    }
+                }
+                else if (t.Name.LocalName.Equals("scale"))
+                {
+                    transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateScale(t.Value.ToVec3()));
+                }
+            }
+            return transform;
         }
 
         public Intersection Intersect(Ray ray)

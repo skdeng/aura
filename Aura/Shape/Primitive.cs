@@ -10,6 +10,7 @@ namespace Aura.Shape
         public bool HasTransform { get; set; }
 
         private Matrix4x4 _Transform;
+        private Matrix4x4 _TransformInverse;
         public Matrix4x4 Transform
         {
             get
@@ -19,7 +20,8 @@ namespace Aura.Shape
             set
             {
                 _Transform = value;
-                HasTransform = _Transform.IsIdentity;
+                Matrix4x4.Invert(_Transform, out _TransformInverse);
+                HasTransform = !_Transform.IsIdentity;
             }
         }
 
@@ -29,7 +31,7 @@ namespace Aura.Shape
         {
             if (HasTransform)
             {
-                return new Ray(Vector4.Transform(ray.PositionHomogenous, Transform), Vector3.Transform(ray.Direction, Transform));
+                return new Ray(Vector4.Transform(ray.PositionHomogenous, _TransformInverse), Vector3.Transform(ray.Direction, _TransformInverse));
             }
             else
             {

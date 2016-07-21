@@ -30,7 +30,7 @@ namespace AuraUnitTest
         [TestMethod]
         public void MeshIntersection()
         {
-            var mesh = Mesh.LoadOBJ("E:\\aura\\Scene\\test.obj");
+            var mesh = Mesh.LoadOBJ("..\\..\\..\\Scene\\obj\\emerald.obj", new Material());
 
             var rayPos = new Vector3(0, 0, 0);
             var ray = new Ray(rayPos, Vector3.Normalize(mesh.Triangles[0].A - rayPos));

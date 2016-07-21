@@ -74,7 +74,7 @@
 			type="reflective"/>
 	</materials>
 
-	<object name="gold sphere"
+<!-- 	<object name="gold sphere"
 		type="sphere"
 		center="-1.2 0.7 0"
 		radius="0.7"
@@ -83,12 +83,15 @@
 		type="sphere"
 		center="-0.5 1.5 -4"
 		radius="1.5"
-		material="pink_gold" />
+		material="pink_gold" /> -->
 	<object name="obj"
 		type="mesh"
-		material="blue"
-		translate="0 2 0"
-		file="E:\aura\Scene\test.obj"/>
+		material="white"
+		file="..\..\..\Scene\obj\emerald.obj">
+		<transforms>
+			<scale>0.01 0.01 0.01</scale>
+		</transforms>
+	</object>
 	<object name="top light"
 		type="sphere"
 		center="0 7.5 -3"
@@ -109,11 +112,11 @@
 		center="0 10006 0"
 		radius="10000"
 		material="white"/>
-	<object name="bottom"
+<!-- 	<object name="bottom"
 		type="sphere"
 		center="0 -10000 0"
 		radius="10000"
-		material="white"/>
+		material="white"/> -->
 	<object name="back"
 		type="sphere"
 		center="0 0 -10007"

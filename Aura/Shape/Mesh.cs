@@ -24,7 +24,9 @@ namespace Aura.Shape
 
         public override Intersection Intersect(Ray ray)
         {
-            if (BoundingBox.Intersect(ray) == null)
+            var transformedRay = TransformRay(ray);
+
+            if (BoundingBox.Intersect(transformedRay) == null)
             {
                 return null;
             }
@@ -33,7 +35,7 @@ namespace Aura.Shape
 
             foreach (var triangle in Triangles)
             {
-                var tempIntersection = triangle.Intersect(ray);
+                var tempIntersection = triangle.Intersect(transformedRay);
                 if (tempIntersection != null)
                 {
                     if (finalIntersection == null || tempIntersection.T < finalIntersection.T)
@@ -57,7 +59,7 @@ namespace Aura.Shape
             Vector3 maxPoint = new Vector3(float.NegativeInfinity);
 
             var faceRegex = new Regex("f (\\d+)/(\\d+)/(\\d+) (\\d+)/(\\d+)/(\\d+) (\\d+)/(\\d+)/(\\d+)");
-            foreach(var line in content)
+            foreach (var line in content)
             {
                 if (line.StartsWith("v "))
                 {
