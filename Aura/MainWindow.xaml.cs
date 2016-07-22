@@ -53,9 +53,14 @@ namespace Aura
                 MainCanvas.Width = SceneDescription.ImageWidth;
                 MainCanvas.Height = SceneDescription.ImageHeight;
             }
-            catch (Exception e)
+            catch (Scene.SceneDescriptionException e)
             {
                 MessageBox.Show(e.Message, "Failed to initialize the scene", MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(-1);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Unknown exception", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(-1);
             }
         }
@@ -67,7 +72,10 @@ namespace Aura
             Sample sample;
             while (true)
             {
-                Debug.WriteLine($"Rendering frame {frame++}");
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Title = $"Path Tracer - frame: {frame++}";
+                });
                 while ((sample = PixelSampler.GetSample()) != null)
                 {
                     ImageData.Commit(sample, Tracer.Trace(MainCamera.GetRay(sample)));
@@ -88,7 +96,7 @@ namespace Aura
             while (true)
             {
                 Debug.WriteLine($"Rendering frame {frame++}");
-
+                
                 for (int i = 0; i < SampleList.Length; i += quarter)
                 {
                     ThreadedRenderSignal[i / quarter] = new ManualResetEvent(false);

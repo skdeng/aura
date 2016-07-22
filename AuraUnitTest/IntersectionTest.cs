@@ -30,14 +30,20 @@ namespace AuraUnitTest
         [TestMethod]
         public void MeshIntersection()
         {
-            var mesh = Mesh.LoadOBJ("..\\..\\..\\Scene\\obj\\emerald.obj", new Material());
+            var model = Model.LoadModel("..\\..\\..\\Scene\\models\\test.obj");
+
+            model.Transform = Matrix4x4.CreateTranslation(0, 1, 0);
 
             var rayPos = new Vector3(0, 0, 0);
-            var ray = new Ray(rayPos, Vector3.Normalize(mesh.Triangles[0].A - rayPos));
+            var rayTarget = new Vector3(-1, -1, 1);
+            var ray = new Ray(rayPos, Vector3.Normalize(rayTarget - rayPos));
 
-            Assert.IsNotNull(mesh.Triangles[0].Intersect(ray), "Triangle intersection failed");
+            Assert.IsNull(model.Intersect(ray), "Mesh shouldn't intersect after transform");
 
-            Assert.IsNotNull(mesh.Intersect(ray), "Mesh intersection failed");
+            rayTarget.Y = 0;
+            ray = new Ray(rayPos, Vector3.Normalize(rayTarget - rayPos));
+
+            Assert.IsNotNull(model.Intersect(ray), "Mesh intersection failed");
         }
     }
 }

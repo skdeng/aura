@@ -66,7 +66,7 @@ namespace Aura
             SceneObject = objects.Select(obj =>
             {
                 var name = obj.Attribute("name")?.Value;
-                Matrix4x4 transform = ParseTransformed(obj.Descendants().FirstOrDefault(x => x.Name.LocalName.Equals("transforms")));
+                Matrix4x4 transform = ParseTransform(obj.Descendants().FirstOrDefault(x => x.Name.LocalName.Equals("transforms")));
 
                 switch (obj.Attribute("type").Value)
                 {
@@ -108,17 +108,17 @@ namespace Aura
                             Name = name,
                             Transform = transform,
                         } as Primitive;
-                    case "mesh":
-                        var mesh = Mesh.LoadOBJ(obj.Attribute("file").Value, MaterialBank[obj.Attribute("material").Value]);
-                        mesh.Transform = transform;
-                        return mesh;
+                    case "model":
+                        var model = Model.LoadModel(obj.Attribute("file").Value, obj.Attribute("material") == null ? null : MaterialBank[obj.Attribute("material").Value]);
+                        model.Transform = transform;
+                        return model;
                     default:
-                        return null;
+                        throw new SceneDescriptionException($"Unrecognized object type {obj.Attribute("type").Value}");
                 }
             }).ToList();
         }
 
-        private Matrix4x4 ParseTransformed(XElement transformNode)
+        private Matrix4x4 ParseTransform(XElement transformNode)
         {
             var transform = Matrix4x4.Identity;
             if (transformNode == null)
@@ -153,6 +153,10 @@ namespace Aura
                 {
                     transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateScale(t.Value.ToVec3()));
                 }
+                else
+                {
+                    throw new SceneDescriptionException($"Unrecognized transform type {t.Name.LocalName}");
+                }
             }
             return transform;
         }
@@ -174,6 +178,13 @@ namespace Aura
                 }
             }
             return finalIntersection;
+        }
+
+        internal class SceneDescriptionException : Exception
+        {
+            public SceneDescriptionException(string msg) : base(msg)
+            {
+            }
         }
     }
 }

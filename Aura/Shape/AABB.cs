@@ -10,6 +10,24 @@ namespace Aura.Shape
 
         public Vector3 MaximumPoint { get; set; }
 
+        //public override Matrix4x4 Transform
+        //{
+        //    get
+        //    {
+        //        return base.Transform;
+        //    }
+
+        //    set
+        //    {
+        //        base.Transform = value;
+        //        if (!Transform.IsIdentity)
+        //        {
+        //            MinimumPoint = Vector3.Transform(MinimumPoint, Transform);
+        //            MaximumPoint = Vector3.Transform(MaximumPoint, Transform);
+        //        }
+        //    }
+        //}
+
         public override Intersection Intersect(Ray ray)
         {
             var transformedRay = TransformRay(ray);
@@ -76,7 +94,6 @@ namespace Aura.Shape
             {
                 normal = Vector3.UnitZ;
             }
-
 
             return new Intersection()
             {

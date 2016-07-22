@@ -11,7 +11,7 @@ namespace Aura.Shape
 
         private Matrix4x4 _Transform;
         private Matrix4x4 _TransformInverse;
-        public Matrix4x4 Transform
+        public virtual Matrix4x4 Transform
         {
             get
             {
@@ -31,7 +31,7 @@ namespace Aura.Shape
         {
             if (HasTransform)
             {
-                return new Ray(Vector4.Transform(ray.PositionHomogenous, _TransformInverse), Vector3.Transform(ray.Direction, _TransformInverse));
+                return new Ray(Vector3.Transform(ray.Position, _TransformInverse), Vector4.Transform(ray.DirectionHomogenous, _TransformInverse));
             }
             else
             {

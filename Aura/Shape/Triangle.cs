@@ -86,6 +86,26 @@ namespace Aura.Shape
 
         public Vector3 Normal { get; set; }
 
+        public override Matrix4x4 Transform
+        {
+            get
+            {
+                return base.Transform;
+            }
+
+            set
+            {
+                base.Transform = value;
+                if (!Transform.IsIdentity)
+                {
+                    A = Vector3.Transform(A, Transform);
+                    B = Vector3.Transform(B, Transform);
+                    C = Vector3.Transform(C, Transform);
+                    Normal = Vector3.TransformNormal(Normal, Transform);
+                }
+            }
+        }
+
         public override Intersection Intersect(Ray ray)
         {
             var cosAngle = Vector3.Dot(ray.Direction, Normal);
@@ -115,7 +135,7 @@ namespace Aura.Shape
                 Normal = cosAngle < 0 ? -Normal : Normal,
                 ContactMaterial = SurfaceMaterial,
                 ContactObject = this,
-                Inside = cosAngle < 0
+                Inside = cosAngle > 0
             };
         }
 

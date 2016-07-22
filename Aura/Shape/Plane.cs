@@ -10,11 +10,27 @@ namespace Aura.Shape
         public Vector3 Origin { get; set; }
         public Material SurfaceMaterialSecondary { get; set; }
 
+        public override Matrix4x4 Transform
+        {
+            get
+            {
+                return base.Transform;
+            }
+
+            set
+            {
+                base.Transform = value;
+                if (!Transform.IsIdentity)
+                {
+                    Origin = Vector3.Transform(Origin, Transform);
+                    Normal = Vector3.TransformNormal(Normal, Transform);
+                }
+            }
+        }
+
         public override Intersection Intersect(Ray ray)
         {
-            Ray transformedRay = TransformRay(ray);
-            
-            var rayPlaneAngle = Vector3.Dot(transformedRay.Direction, Normal);
+            var rayPlaneAngle = Vector3.Dot(ray.Direction, Normal);
 
             if (rayPlaneAngle > -Constant.PlaneHorizon && rayPlaneAngle < Constant.PlaneHorizon)
             {
@@ -22,14 +38,14 @@ namespace Aura.Shape
             }
             else
             {
-                var tempT = Vector3.Dot((Origin - transformedRay.Position), Normal) / rayPlaneAngle;
+                var tempT = Vector3.Dot((Origin - ray.Position), Normal) / rayPlaneAngle;
 
                 if (tempT < 0)
                 {
                     return null;
                 }
 
-                var intersectionPoint = transformedRay + tempT;
+                var intersectionPoint = ray + tempT;
 
                 return new Intersection()
                 {
