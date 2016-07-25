@@ -74,7 +74,7 @@ namespace Aura
                         return new Sphere()
                         {
                             Center = obj.Attribute("center").Value.ToVec3(),
-                            Radius = double.Parse(obj.Attribute("radius").Value),
+                            Radius = float.Parse(obj.Attribute("radius").Value),
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
                             Name = name,
                             Transform = transform,
@@ -109,8 +109,7 @@ namespace Aura
                             Transform = transform,
                         } as Primitive;
                     case "model":
-                        var model = Model.LoadModel(obj.Attribute("file").Value, obj.Attribute("material") == null ? null : MaterialBank[obj.Attribute("material").Value]);
-                        model.Transform = transform;
+                        var model = Model.LoadModel(obj.Attribute("file").Value, transform, obj.Attribute("material") == null ? null : MaterialBank[obj.Attribute("material").Value]);
                         return model;
                     default:
                         throw new SceneDescriptionException($"Unrecognized object type {obj.Attribute("type").Value}");

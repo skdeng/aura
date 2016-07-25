@@ -6,26 +6,41 @@ namespace Aura.Shape
 {
     class Model : Primitive
     {
-        public readonly List<Vector3> Vertices;
-
-        public readonly List<Vector3> Normals;
 
         public readonly List<Triangle> Triangles;
 
         public AABB BoundingBox { get; set; }
 
+        //public override Matrix4x4 Transform
+        //{
+        //    get
+        //    {
+        //        return base.Transform;
+        //    }
+
+        //    set
+        //    {
+        //        base.Transform = value;
+
+        //        var minPoint = new Vector3(float.PositiveInfinity);
+        //        var maxPoint = new Vector3(float.NegativeInfinity);
+
+        //        foreach (var triangle in Triangles)
+        //        {
+        //            triangle.Transform = Transform;
+        //        }
+        //    }
+        //}
+
         public Model()
         {
-            Vertices = new List<Vector3>();
-            Normals = new List<Vector3>();
+
             Triangles = new List<Triangle>();
         }
 
         public override Intersection Intersect(Ray ray)
         {
-            var transformedRay = TransformRay(ray);
-
-            if (BoundingBox.Intersect(transformedRay) == null)
+            if (BoundingBox.Intersect(ray) == null)
             {
                 return null;
             }
@@ -34,7 +49,7 @@ namespace Aura.Shape
 
             foreach (var triangle in Triangles)
             {
-                var tempIntersection = triangle.Intersect(transformedRay);
+                var tempIntersection = triangle.Intersect(ray);
                 if (tempIntersection != null)
                 {
                     if (finalIntersection == null || tempIntersection.T < finalIntersection.T)
@@ -47,7 +62,7 @@ namespace Aura.Shape
             return finalIntersection;
         }
 
-        public static Model LoadModel(string filename, Material inputMaterial = null)
+        public static Model LoadModel(string filename, Matrix4x4 transform, Material inputMaterial = null)
         {
             var importer = new Assimp.AssimpContext();
 
@@ -55,8 +70,11 @@ namespace Aura.Shape
 
             var model = new Model();
 
-            Vector3 minPoint = new Vector3(float.PositiveInfinity);
-            Vector3 maxPoint = new Vector3(float.NegativeInfinity);
+            var minPoint = new Vector3(float.PositiveInfinity);
+            var maxPoint = new Vector3(float.NegativeInfinity);
+
+            var vertices = new List<Vector3>();
+            var normals = new List<Vector3>();
 
             foreach (var mesh in scene.Meshes)
             {
@@ -105,7 +123,13 @@ namespace Aura.Shape
                 foreach (var v in mesh.Vertices)
                 {
                     var vertex = new Vector3(v.X, v.Y, v.Z);
-                    model.Vertices.Add(vertex);
+
+                    if (!transform.IsIdentity)
+                    {
+                        vertex = Vector3.Transform(vertex, transform);
+                    }
+
+                    vertices.Add(vertex);
 
                     if (vertex.X < minPoint.X)
                     {
@@ -135,17 +159,22 @@ namespace Aura.Shape
 
                 foreach (var normal in mesh.Normals)
                 {
-                    model.Normals.Add(new Vector3(normal.X, normal.Y, normal.Z));
+                    var norm = new Vector3(normal.X, normal.Y, normal.Z);
+                    if (!transform.IsIdentity)
+                    {
+                        norm = Vector3.TransformNormal(norm, transform);
+                    }
+                    normals.Add(norm);
                 }
 
                 foreach (var face in mesh.Faces)
                 {
                     model.Triangles.Add(new Triangle()
                     {
-                        A = model.Vertices[face.Indices[0]],
-                        B = model.Vertices[face.Indices[1]],
-                        C = model.Vertices[face.Indices[2]],
-                        Normal = Vector3.Normalize(model.Normals[face.Indices[0]] + model.Normals[face.Indices[1]] + model.Normals[face.Indices[2]]),
+                        A = vertices[face.Indices[0]],
+                        B = vertices[face.Indices[1]],
+                        C = vertices[face.Indices[2]],
+                        Normal = Vector3.Normalize(normals[face.Indices[0]] + normals[face.Indices[1]] + normals[face.Indices[2]]),
                         SurfaceMaterial = meshMaterial
                     });
                 }

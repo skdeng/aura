@@ -1,5 +1,3 @@
-TODO:
-- Make model loading more flexible
-- Add support for nested scenes with transformation
-- Acceleration structure (multilevel kd-level)
-- Patch caching
+#Project Aura - C# CPU Path tracer
+####Sample Imagess
+![Path tracing image 1](/Images/aura_cornell1.bmp)

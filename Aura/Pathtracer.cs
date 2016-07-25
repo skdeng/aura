@@ -105,7 +105,7 @@ namespace Aura
             var A = refractionIndexObj - refractionIndexAir;
             var B = refractionIndexObj + refractionIndexAir;
             var R = A * A / (B * B);
-            
+
             var C = 1 - (intersection.Inside ? Vector3.Dot(refractionDirection, intersection.Normal) : -cosIncidentAngle);
             var re = R + (1 - R) * (float)Math.Pow(C, 5);
             var tr = 1 - re;
@@ -113,15 +113,15 @@ namespace Aura
             var rp = re / pp;
             var tp = tr / (1 - pp);
 
-            return contactMaterial.Emission + contactMaterial.Diffuse * 
+            return contactMaterial.Emission + contactMaterial.Diffuse *
                 (
                     recursionDepth > 4 ?
                     (
-                        RNG.NextDouble() < pp ? 
+                        RNG.NextDouble() < pp ?
                             Trace(reflectedRay, recursionDepth) * rp :
                             Trace(refractedRay, recursionDepth)
                     ) :
-                        Trace(reflectedRay, recursionDepth) * re + Trace(refractedRay, recursionDepth) * tr                        
+                        Trace(reflectedRay, recursionDepth) * re + Trace(refractedRay, recursionDepth) * tr
                 );
         }
     }

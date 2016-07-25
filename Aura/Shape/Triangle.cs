@@ -128,18 +128,24 @@ namespace Aura.Shape
                 return null;
             }
 
+            var normal = Normal;
+            if (HasTransform)
+            {
+                normal = Vector3.TransformNormal(normal, Transform);
+            }
+
             return new Intersection()
             {
                 T = tempT,
                 Position = intersectionPoint,
-                Normal = cosAngle < 0 ? -Normal : Normal,
+                Normal = normal,
                 ContactMaterial = SurfaceMaterial,
                 ContactObject = this,
                 Inside = cosAngle > 0
             };
         }
 
-        private bool Inside (Vector3 point)
+        private bool Inside(Vector3 point)
         {
             var barycentricPoint = Barycentric(point);
             return barycentricPoint.Min() >= 0 && barycentricPoint.Max() <= 1;
@@ -152,7 +158,7 @@ namespace Aura.Shape
         /// </summary>
         /// <param name="point">Point in world space</param>
         /// <returns>Barycentric coordinate of the point in triangle space</returns>
-        private Vector3 Barycentric (Vector3 point)
+        private Vector3 Barycentric(Vector3 point)
         {
             var pa = point - A;
             var d20 = Vector3.Dot(pa, AB);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aura.Values;
+using System;
 using System.Numerics;
 
 namespace Aura
@@ -17,13 +18,18 @@ namespace Aura
             return ((float)Math.PI / 180) * val;
         }
 
+        public static bool FuzzyEqual(this float val, float otherval)
+        {
+            return val < otherval - Constant.Epsilon || val > otherval + Constant.Epsilon;
+        }
+
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {
             T[] result = new T[length];
             Array.Copy(data, index, result, 0, length);
             return result;
         }
-        
+
         public static Vector3 ToVec3(this string s)
         {
             var splitted = s.Split(' ');

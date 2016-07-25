@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aura.Values;
+using System;
 using System.Numerics;
 
 namespace Aura.Shape
@@ -7,8 +8,8 @@ namespace Aura.Shape
     {
         public Vector3 Center { get; set; }
 
-        private double _Radius { get; set; }
-        public double Radius
+        private float _Radius { get; set; }
+        public float Radius
         {
             get
             {
@@ -21,40 +22,46 @@ namespace Aura.Shape
             }
         }
 
-        private double RadiusSq { get; set; }
+        private float RadiusSq { get; set; }
 
         public override Intersection Intersect(Ray ray)
         {
-            Vector3 oc = ray.Position - Center;
-            var ocLength = oc.Length();
+            Vector3 oc = Center - ray.Position;
+            var ocLengthSq = oc.LengthSquared();
             var directionDotOC = Vector3.Dot(ray.Direction, oc);
-            var determinant = directionDotOC * directionDotOC - ocLength * ocLength + RadiusSq;
+            var determinant = directionDotOC * directionDotOC - ocLengthSq + RadiusSq;
 
             // No intersection
-            if (determinant < 0 || directionDotOC > 0)
+            if (determinant < -Constant.Epsilon)
             {
                 return null;
             }
 
-            var tempT = -directionDotOC;
-            
             // Determinant larger than zero => 2 intersections
             bool inside = false;
-            if (determinant > 0)
+            float tempT = 0;
+            if (determinant > Constant.Epsilon)
             {
-                var sqrtDeterminant = (float) Math.Sqrt(determinant);
+                determinant = (float)Math.Sqrt(determinant);
 
                 // Find closest intersection
-                if (sqrtDeterminant > tempT)
+                if (directionDotOC - determinant > 0)
                 {
-                    tempT += sqrtDeterminant;
-                    // Originating inside the sphere
+                    tempT = directionDotOC - determinant;
+                }
+                else if (directionDotOC + determinant > 0)
+                {
+                    tempT = directionDotOC + determinant;
                     inside = true;
                 }
                 else
                 {
-                    tempT -= sqrtDeterminant;
+                    return null;
                 }
+            }
+            else // tangent => no intersection
+            {
+                return null;
             }
 
             var intersection = new Intersection() { T = tempT, ContactObject = this, ContactMaterial = (Material)SurfaceMaterial.Clone(), Position = ray + tempT, Inside = inside };
