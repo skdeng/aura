@@ -3,11 +3,14 @@ using System.Numerics;
 
 namespace Aura
 {
-    class Ray
+    internal class Ray
     {
         public Vector3 Position { get; }
+        
+
         public Vector3 Direction { get; }
         public Vector3 InverseDirection { get; }
+        public Vector4 DirectionHomogenous { get; }
 
         public Ray()
         {
@@ -20,6 +23,16 @@ namespace Aura
             Position = position + direction * Constant.RayMinimum;
             Direction = direction;
 
+            DirectionHomogenous = new Vector4(direction, 0.0f);
+            InverseDirection = new Vector3(1 / direction.X, 1 / direction.Y, 1 / direction.Z);
+        }
+
+        public Ray(Vector3 position, Vector4 direction)
+        {
+            Position = position;
+            DirectionHomogenous = direction;
+
+            Direction = new Vector3(DirectionHomogenous.X, DirectionHomogenous.Y, DirectionHomogenous.Z);
             InverseDirection = new Vector3(1 / direction.X, 1 / direction.Y, 1 / direction.Z);
         }
 

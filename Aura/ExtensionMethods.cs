@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aura.Values;
+using System;
 using System.Numerics;
 
 namespace Aura
@@ -12,17 +13,50 @@ namespace Aura
             else return val;
         }
 
+        public static float ToRadians(this float val)
+        {
+            return ((float)Math.PI / 180) * val;
+        }
+
+        public static bool FuzzyEqual(this float val, float otherval)
+        {
+            return val < otherval - Constant.Epsilon || val > otherval + Constant.Epsilon;
+        }
+
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {
             T[] result = new T[length];
             Array.Copy(data, index, result, 0, length);
             return result;
         }
-        
-        public static Vector3 ToVec(this string s)
+
+        public static Vector3 ToVec3(this string s)
         {
             var splitted = s.Split(' ');
             return new Vector3(float.Parse(splitted[0]), float.Parse(splitted[1]), float.Parse(splitted[2]));
+        }
+
+        public static Matrix4x4 ToMat4(this string s)
+        {
+            float[][] data = new float[4][];
+            var rows = s.Split(';');
+            for (int i = 0; i < 4; i++)
+            {
+                data[i] = new float[4];
+                var e = rows[i].Split(' ');
+                for (int j = 0; j < 4; j++)
+                {
+                    data[i][j] = float.Parse(e[j]);
+                }
+            }
+
+            return new Matrix4x4
+                (
+                data[0][0], data[0][1], data[0][2], data[0][3],
+                data[1][0], data[1][1], data[1][2], data[1][3],
+                data[2][0], data[2][1], data[2][2], data[2][3],
+                data[3][0], data[3][1], data[3][2], data[3][3]
+                );
         }
 
         public static float Min(this Vector3 val)

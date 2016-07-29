@@ -14,7 +14,7 @@ namespace Aura
         public int ImageHeight { get; private set; }
 
         public Vector3 BackgroundColor { get; private set; }
-        
+
         public float Exposure { get; private set; }
 
         public int RecursiveDepthLimit { get; set; }
@@ -30,8 +30,6 @@ namespace Aura
         public List<Primitive> SceneObject { get; set; }
 
         public Dictionary<string, Material> MaterialBank { get; set; }
-        
-        public List<Primitive> EmissivePrimitives { get; set; }
 
         public void LoadScene(string sceneFile)
         {
@@ -39,14 +37,14 @@ namespace Aura
 
             ImageWidth = int.Parse(sceneRoot.Attribute("image_width").Value);
             ImageHeight = int.Parse(sceneRoot.Attribute("image_height").Value);
-            BackgroundColor = sceneRoot.Attribute("background_color").Value.ToVec();
+            BackgroundColor = sceneRoot.Attribute("background_color").Value.ToVec3();
             Exposure = float.Parse(sceneRoot.Attribute("exposure").Value);
             RecursiveDepthLimit = int.Parse(sceneRoot.Attribute("recursive_depth_limit").Value);
 
             var cameraNode = sceneRoot.Descendants().First(node => node.Name.LocalName.Equals("camera"));
-            CameraPosition = cameraNode.Attribute("position").Value.ToVec();
-            CameraDirection = cameraNode.Attribute("direction").Value.ToVec();
-            CameraUp = cameraNode.Attribute("up").Value.ToVec();
+            CameraPosition = cameraNode.Attribute("position").Value.ToVec3();
+            CameraDirection = cameraNode.Attribute("direction").Value.ToVec3();
+            CameraUp = cameraNode.Attribute("up").Value.ToVec3();
             CameraFOV = float.Parse(cameraNode.Attribute("fov").Value);
 
             var materials = sceneRoot.Descendants().First(node => node.Name.LocalName.Equals("materials"));
@@ -56,50 +54,110 @@ namespace Aura
                                         name = node.Name.LocalName,
                                         material = new Material()
                                         {
-                                            Emission = node.Attribute("emission").Value.ToVec(),
-                                            Diffuse = node.Attribute("diffuse").Value.ToVec(),
-                                            Transparency = node.Attribute("transparency").Value.ToVec(),
+                                            Emission = node.Attribute("emission").Value.ToVec3(),
+                                            Diffuse = node.Attribute("diffuse").Value.ToVec3(),
+                                            Transparency = node.Attribute("transparency").Value.ToVec3(),
                                             RefractionIndex = float.Parse(node.Attribute("refraction_index").Value),
-                                            Type = (Material.MaterialType) Enum.Parse(typeof(Material.MaterialType), node.Attribute("type").Value, ignoreCase: true)
+                                            Type = (Material.MaterialType)Enum.Parse(typeof(Material.MaterialType), node.Attribute("type").Value, ignoreCase: true)
                                         }
                                     }).ToDictionary(x => x.name, x => x.material);
 
             var objects = sceneRoot.Descendants().Where(element => element.Name.LocalName.Equals("object"));
             SceneObject = objects.Select(obj =>
             {
+                var name = obj.Attribute("name")?.Value;
+                Matrix4x4 transform = ParseTransform(obj.Descendants().FirstOrDefault(x => x.Name.LocalName.Equals("transforms")));
+
                 switch (obj.Attribute("type").Value)
                 {
                     case "sphere":
                         return new Sphere()
                         {
-                            Center = obj.Attribute("center").Value.ToVec(),
-                            Radius = double.Parse(obj.Attribute("radius").Value),
+                            Center = obj.Attribute("center").Value.ToVec3(),
+                            Radius = float.Parse(obj.Attribute("radius").Value),
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
-                            Name = obj.Attribute("name")?.Value
-                        } as Primitive;
+                            Name = name,
+                            Transform = transform,
+                        };
                     case "aabb":
                         return new AABB()
                         {
-                            MinimumPoint = obj.Attribute("min_point").Value.ToVec(),
-                            MaximumPoint = obj.Attribute("max_point").Value.ToVec(),
+                            MinimumPoint = obj.Attribute("min_point").Value.ToVec3(),
+                            MaximumPoint = obj.Attribute("max_point").Value.ToVec3(),
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
-                            Name = obj.Attribute("name")?.Value
-                        } as Primitive;
+                            Name = name,
+                            Transform = transform,
+                        };
                     case "plane":
                         return new Shape.Plane()
                         {
-                            Origin = obj.Attribute("origin").Value.ToVec(),
-                            Normal = obj.Attribute("normal").Value.ToVec(),
+                            Origin = obj.Attribute("origin").Value.ToVec3(),
+                            Normal = obj.Attribute("normal").Value.ToVec3(),
                             SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
                             SurfaceMaterialSecondary = obj.Attribute("material_secondary") != null ? MaterialBank[obj.Attribute("material_secondary").Value] : null,
-                            Name = obj.Attribute("name")?.Value
+                            Name = name,
+                            Transform = transform,
+                        };
+                    case "triangle":
+                        return new Triangle()
+                        {
+                            A = obj.Attribute("a").Value.ToVec3(),
+                            B = obj.Attribute("b").Value.ToVec3(),
+                            C = obj.Attribute("c").Value.ToVec3(),
+                            SurfaceMaterial = MaterialBank[obj.Attribute("material").Value],
+                            Name = name,
+                            Transform = transform,
                         } as Primitive;
+                    case "model":
+                        var model = Model.LoadModel(obj.Attribute("file").Value, transform, obj.Attribute("material") == null ? null : MaterialBank[obj.Attribute("material").Value]);
+                        return model;
                     default:
-                        return null;
+                        throw new SceneDescriptionException($"Unrecognized object type {obj.Attribute("type").Value}");
                 }
             }).ToList();
+        }
 
-            EmissivePrimitives = SceneObject.Where(obj => obj.SurfaceMaterial.Emission.Min() > 0).ToList();
+        private Matrix4x4 ParseTransform(XElement transformNode)
+        {
+            var transform = Matrix4x4.Identity;
+            if (transformNode == null)
+            {
+                return transform;
+            }
+
+            foreach (var t in transformNode.Descendants())
+            {
+                if (t.Name.LocalName.Equals("translate"))
+                {
+                    var translationMatrix = Matrix4x4.CreateTranslation(t.Value.ToVec3());
+                    transform = Matrix4x4.Multiply(transform, translationMatrix);
+                }
+                else if (t.Name.LocalName.Equals("rotate"))
+                {
+                    var rotationVector = t.Value.ToVec3();
+                    if (rotationVector.X != 0)
+                    {
+                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationX(rotationVector.X.ToRadians()));
+                    }
+                    if (rotationVector.Y != 0)
+                    {
+                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationY(rotationVector.Y.ToRadians()));
+                    }
+                    if (rotationVector.Z != 0)
+                    {
+                        transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateRotationZ(rotationVector.Z.ToRadians()));
+                    }
+                }
+                else if (t.Name.LocalName.Equals("scale"))
+                {
+                    transform = Matrix4x4.Multiply(transform, Matrix4x4.CreateScale(t.Value.ToVec3()));
+                }
+                else
+                {
+                    throw new SceneDescriptionException($"Unrecognized transform type {t.Name.LocalName}");
+                }
+            }
+            return transform;
         }
 
         public Intersection Intersect(Ray ray)
@@ -119,6 +177,13 @@ namespace Aura
                 }
             }
             return finalIntersection;
+        }
+
+        internal class SceneDescriptionException : Exception
+        {
+            public SceneDescriptionException(string msg) : base(msg)
+            {
+            }
         }
     }
 }

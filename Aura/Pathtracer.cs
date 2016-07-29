@@ -100,6 +100,8 @@ namespace Aura
             var refractionDirection = Vector3.Normalize(ray.Direction * indexRatio - intersection.Normal * ((intersection.Inside) ? -1 : 1) * (cosIncidentAngle * indexRatio + (float)Math.Sqrt(cos2T)));
             var refractedRay = new Ray(intersection.Position, refractionDirection);
 
+            // Reflection and refraction ratio using Fresnel equations
+
             var A = refractionIndexObj - refractionIndexAir;
             var B = refractionIndexObj + refractionIndexAir;
             var R = A * A / (B * B);
@@ -111,10 +113,15 @@ namespace Aura
             var rp = re / pp;
             var tp = tr / (1 - pp);
 
-            return contactMaterial.Emission + contactMaterial.Diffuse * (
-                recursionDepth > 4 ?
-                    (RNG.NextDouble() < pp ? Trace(reflectedRay, recursionDepth) * rp : Trace(refractedRay, recursionDepth)) :
-                    Trace(reflectedRay, recursionDepth) * re + Trace(refractedRay, recursionDepth) * tr                        
+            return contactMaterial.Emission + contactMaterial.Diffuse *
+                (
+                    recursionDepth > 4 ?
+                    (
+                        RNG.NextDouble() < pp ?
+                            Trace(reflectedRay, recursionDepth) * rp :
+                            Trace(refractedRay, recursionDepth)
+                    ) :
+                        Trace(reflectedRay, recursionDepth) * re + Trace(refractedRay, recursionDepth) * tr
                 );
         }
     }

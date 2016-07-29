@@ -3,11 +3,11 @@
 	image_height="400"
 	background_color="0 0 0"
 	exposure="1"
-	recursive_depth_limit="4">
+	recursive_depth_limit="32">
 
 	<camera 
-   		position="0 3 10"
-		direction="0 -1 -10"
+   		position="0 4 10"
+		direction="0 -2 -10"
 		up="0 1 0" 
     	fov="45"/>
 
@@ -19,14 +19,14 @@
 			refraction_index="1"
 			type="reflective" />
 		<light 
-			emission="1 1 1"
+			emission="8 8 8"
 			diffuse="0 0 0"
 			transparency="0 0 0"
 			refraction_index="1" 
 			type="emissive" />
 		<white
 			emission="0 0 0"
-			diffuse="1 1 1"
+			diffuse="0.9 0.9 0.9"
 			transparency="0 0 0"
 			refraction_index="1" 
 			type="diffuse"/>
@@ -64,41 +64,60 @@
 			emission="0 0 0"
 			diffuse="0.8 0.8 0.8"
 			transparency="0 0 0"
-			refraction_index="1" 
+			refraction_index="1.2" 
 			type="reflective"/>
-		<pink_gold
+		<rosegold
 			emission="0 0 0"
 			diffuse="1 0.7137 0.75686"
 			transparency="0 0 0"
 			refraction_index="1" 
 			type="reflective"/>
+		<pink_glass
+			emission="0 0 0"
+			diffuse="1 0.7137 0.75686"
+			transparency="0 0 0"
+			refraction_index="1.5" 
+			type="refractive"/>
+		<emerald
+			emission="0 0 0"
+			diffuse="0.2 0.8 0.3"
+			transparency="0 0 0"
+			refraction_index="1.5" 
+			type="refractive"/>
+
 	</materials>
 
 	<object name="gold sphere"
 		type="sphere"
 		center="-1.2 0.7 0"
 		radius="0.7"
-		material="gold" />
-	<object name="pinkgold sphere"
+		material="rosegold" />
+	<object name="pinkglass sphere"
 		type="sphere"
 		center="-0.5 1.5 -4"
 		radius="1.5"
-		material="pink_gold" />
-	<object name="glass sphere"
-		type="sphere"
-		center="1.5 1 -1"
-		radius="1"
-		material="glass" />	
-	<object name="glass sphere 2"
-		type="sphere"
-		center="1.2 0.7 0.7"
-		radius="0.7"
-		material="glass" />	
+		material="pink_glass" >
+		<transforms>
+			<scale>2 1 2</scale>
+		</transforms>
+	</object>
+	<object name="obj"
+		type="model"
+		material="emerald"
+		file="..\..\..\Scene\models\emerald.obj">
+		<transforms>
+			<scale>0.01 0.01 0.01</scale>
+			<rotate>0 0 0</rotate>
+			<translate>2 0 0.7</translate>
+		</transforms>
+	</object>
+
 	<object name="top light"
 		type="sphere"
-		center="0 7.5 -3"
-		radius="3"
-		material="light"/>	
+		center="0 15.5 -1"
+		radius="10"
+		material="light"/>
+
 	<object name="left"
 		type="sphere"
 		center="-10004 0 0"

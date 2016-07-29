@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
@@ -40,15 +41,28 @@ namespace Aura
 
         private void Initialize()
         {
-            SceneDescription = new Scene();
-            SceneDescription.LoadScene("../../../Scene/cornell.scene");
-            PixelSampler = new Sampler(SceneDescription);
-            MainCamera = new Camera(SceneDescription);
-            Tracer = new Pathtracer(SceneDescription);
-            ImageData = new Image(SceneDescription);
+            try
+            {
+                SceneDescription = new Scene();
+                SceneDescription.LoadScene("../../../Scene/cornell.scene");
+                PixelSampler = new Sampler(SceneDescription);
+                MainCamera = new Camera(SceneDescription);
+                Tracer = new Pathtracer(SceneDescription);
+                ImageData = new Image(SceneDescription);
 
-            MainCanvas.Width = SceneDescription.ImageWidth;
-            MainCanvas.Height = SceneDescription.ImageHeight;
+                MainCanvas.Width = SceneDescription.ImageWidth;
+                MainCanvas.Height = SceneDescription.ImageHeight;
+            }
+            catch (Scene.SceneDescriptionException e)
+            {
+                MessageBox.Show(e.Message, "Failed to initialize the scene", MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(-1);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Unknown exception", MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(-1);
+            }
         }
 
         private void Render()
@@ -58,13 +72,12 @@ namespace Aura
             Sample sample;
             while (true)
             {
-                Debug.WriteLine($"Rendering frame {frame++}");
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Title = $"Path Tracer - frame: {frame++}";
+                });
                 while ((sample = PixelSampler.GetSample()) != null)
                 {
-                    if (sample.X == 300)
-                    {
-                        var x = 1;
-                    }
                     ImageData.Commit(sample, Tracer.Trace(MainCamera.GetRay(sample)));
                 }
                 ImageData.Refresh();
