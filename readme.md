@@ -1,5 +1,5 @@
-#Project Aura - C# CPU Path tracer
+# Project Aura - C# CPU Path tracer
 
-####Sample Imagess
+#### Sample Imagess
 
 ![Path tracing image 1](/Images/aura_cornell1.bmp)
